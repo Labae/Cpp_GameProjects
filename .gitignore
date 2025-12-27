@@ -1,0 +1,25 @@
+# Build
+*.obj
+*.exe
+*.dll
+*.lib
+*.pdb
+*.ilk
+*.exp
+
+# Visual Studio
+.vs/
+Debug/
+Release/
+x64/
+x86/
+*.user
+*.suo
+
+# Output
+out/
+bin/
+build/
+
+# Save data
+*.dat
