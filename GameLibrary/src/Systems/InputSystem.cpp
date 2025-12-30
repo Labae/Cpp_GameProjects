@@ -6,10 +6,28 @@ namespace GameLibrary
     {
         m_previousState = m_currentState;
 
-        for (size_t i = 0; i < KEY_COUNT; ++i)
+        // 이번 프레임에 눌린 키들 처리
+        for (auto scancode : m_pressedThisFrame)
         {
-            m_currentState[i] = sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Scancode>(i));
+            m_currentState[static_cast<size_t>(scancode)] = true;
         }
+        for (auto scancode : m_releasedThisFrame)
+        {
+            m_currentState[static_cast<size_t>(scancode)] = false;
+        }
+
+        m_pressedThisFrame.clear();
+        m_releasedThisFrame.clear();
+    }
+
+    void InputSystem::OnKeyPressed(sf::Keyboard::Scancode scancode) noexcept
+    {
+        m_pressedThisFrame.push_back(scancode);
+    }
+
+    void InputSystem::OnKeyReleased(sf::Keyboard::Scancode scancode) noexcept
+    {
+        m_releasedThisFrame.push_back(scancode);
     }
 
     bool InputSystem::IsKeyDown(KeyCode key) const noexcept

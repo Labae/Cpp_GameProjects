@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug SnakeGame",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/SnakeGame",
+            "args": [],
+            "cwd": "${workspaceFolder}/build",
+            "preLaunchTask": "CMake: Build",
+            "stopAtEntry": false
+        },
+        {
+            "name": "Debug SnakeGame (GDB)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/SnakeGame",
+            "args": [],
+            "cwd": "${workspaceFolder}/build",
+            "preLaunchTask": "CMake: Build",
+            "stopAtEntry": false,
+            "MIMode": "lldb"
+        }
+    ]
+}

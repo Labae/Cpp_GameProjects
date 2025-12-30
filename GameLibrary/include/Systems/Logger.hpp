@@ -47,6 +47,7 @@ namespace GameLibrary
             std::cout << prefix << message << '\n';
         }
 
+        static void Normal(const std::string& message) { Log(LogLevel::Normal, message); }
         static void Info(const std::string& message) { Log(LogLevel::Info, message); }
         static void Warning(const std::string& message) { Log(LogLevel::Warning, message); }
         static void Error(const std::string& message) { Log(LogLevel::Error, message); }

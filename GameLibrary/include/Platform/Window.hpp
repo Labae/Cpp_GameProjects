@@ -7,6 +7,8 @@
 
 namespace GameLibrary
 {
+    class IInputProvider;
+
     class Window : public IInitializable
     {
     public:
@@ -29,6 +31,7 @@ namespace GameLibrary
 
     private:
         sf::RenderWindow m_window{};
+        IInputProvider* m_inputProvider{};
         int32_t m_width{};
         int32_t m_height{};
     };

@@ -9,16 +9,17 @@
 namespace GameLibrary
 {
     class Window;
-    class TimeSystem;
-    class InputSystem;
-    class GraphicsSystem;
-    class SceneManager;
-    class PhysicsSystem;
     class EventSystem;
     class SaveSystem;
     class ConfigSystem;
     class SoundSystem;
     class FxSystem;
+
+    class IGraphics;
+    class IInputProvider;
+    class ITimeProvider;
+    class IPhysicsSystem;
+    class ISceneManager;
 
     class Engine
     {
@@ -39,6 +40,7 @@ namespace GameLibrary
         void ReloadConfig();
 
         [[nodiscard]] bool IsRunning() const noexcept { return m_isRunning; }
+        [[nodiscard]] ServiceContainer& GetContainer() noexcept { return m_container; }
 
     private:
         void RegisterServices();
@@ -56,11 +58,12 @@ namespace GameLibrary
 
         ConfigSystem* m_configSystem{};
         Window* m_window{};
-        GraphicsSystem* m_graphics{};
-        InputSystem* m_inputProvider{};
-        TimeSystem* m_timeProvider{};
-        PhysicsSystem* m_physicsSystem{};
-        SceneManager* m_sceneManager{};
+
+        IGraphics* m_graphics{};
+        IInputProvider* m_inputProvider{};
+        ITimeProvider* m_timeProvider{};
+        IPhysicsSystem* m_physicsSystem{};
+        ISceneManager* m_sceneManager{};
 
         EventSystem* m_eventSystem{};
         SaveSystem* m_saveSystem{};

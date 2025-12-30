@@ -104,6 +104,8 @@ namespace GameLibrary
 
     void Engine::RegisterServices()
     {
+        m_container.RegisterInstance<EngineConfig>(std::make_shared<EngineConfig>(m_config));
+        m_container.Register<Window, Window>();
         m_container.Register<ITimeProvider, TimeSystem>();
         m_container.Register<IInputProvider, InputSystem>();
         m_container.Register<IGraphics, GraphicsSystem>();
@@ -131,11 +133,11 @@ namespace GameLibrary
         m_config.screenHeight = m_configSystem->GetInt("screenHeight", m_config.screenHeight);
 
         m_window = TryInitialize<Window>();
-        m_inputProvider = TryInitialize<InputSystem>();
-        m_graphics = TryInitialize<GraphicsSystem>();
-        m_sceneManager = TryInitialize<SceneManager>();
-        m_timeProvider = TryInitialize<TimeSystem>();
-        m_physicsSystem = TryInitialize<PhysicsSystem>();
+        m_inputProvider = TryInitialize<IInputProvider>();
+        m_graphics = TryInitialize<IGraphics>();
+        m_sceneManager = TryInitialize<ISceneManager>();
+        m_timeProvider = TryInitialize<ITimeProvider>();
+        m_physicsSystem = TryInitialize<IPhysicsSystem>();
         m_eventSystem = TryInitialize<EventSystem>();
         m_saveSystem = TryInitialize<SaveSystem>();
         m_soundSystem = TryInitialize<SoundSystem>();
@@ -182,10 +184,13 @@ namespace GameLibrary
     template <typename T> T* Engine::TryInitialize()
     {
         auto* service = m_container.Resolve<T>();
-        if constexpr (std::derived_from<T, IInitializable>)
+        if (!service)
         {
-            service->Init(m_container);
+            Logger::Error("Failed to resolve service");
+            return nullptr;
         }
+
+        m_container.TryInit(std::type_index(typeid(T)), service);
 
         return service;
     }

@@ -24,6 +24,16 @@ namespace GameLibrary
 
         void Init(ServiceContainer& container) override;
 
+        void RegisterSceneFactory(
+            const std::string& name,
+            std::function<std::unique_ptr<Scene>(const std::string&, ServiceContainer&)> factory) override
+        {
+            m_factories[name] = [this, factory, name]() -> std::unique_ptr<Scene>
+            {
+                return factory(name, *m_container);
+            };
+        }
+
         template <typename T> void RegisterScene(const std::string& name)
         {
             m_factories[name] = [this, name]() -> std::unique_ptr<Scene>

@@ -2,7 +2,7 @@
 
 #include "Core/EngineConfig.hpp"
 #include "Core/ServiceContainer.hpp"
-#include "Platform/Window.hpp"
+#include "Interfaces/IInputProvider.hpp"
 #include "Systems/Logger.hpp"
 
 namespace GameLibrary
@@ -23,6 +23,9 @@ namespace GameLibrary
         }
 
         m_window.setFramerateLimit(60);
+
+        // 인터페이스로 Resolve
+        m_inputProvider = container.Resolve<IInputProvider>();
     }
 
     void Window::Destroy() noexcept
@@ -37,9 +40,28 @@ namespace GameLibrary
     {
         while (const std::optional event = m_window.pollEvent())
         {
-            // "close requested" event: we close the window
             if (event->is<sf::Event::Closed>())
                 return false;
+
+            if (m_inputProvider)
+            {
+                if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
+                {
+                    Logger::Info("Key pressed event received!");
+                    if (m_inputProvider)
+                    {
+                        m_inputProvider->OnKeyPressed(keyPressed->scancode);
+                    }
+                    else
+                    {
+                        Logger::Error("m_inputProvider is nullptr!");
+                    }
+                }
+                if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
+                {
+                    m_inputProvider->OnKeyReleased(keyReleased->scancode);
+                }
+            }
         }
 
         return m_window.isOpen();

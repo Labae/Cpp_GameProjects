@@ -90,6 +90,7 @@ namespace GameLibrary
         {
         case TextAlign::Center:
             posX -= bounds.size.x * 0.5f;
+            break;
         case TextAlign::Right:
             posX -= bounds.size.x;
             break;

@@ -4,6 +4,7 @@
 
 #include <SFML/Window/Keyboard.hpp>
 #include <array>
+#include <vector>
 
 namespace GameLibrary
 {
@@ -20,6 +21,9 @@ namespace GameLibrary
 
         void Update() noexcept override;
 
+        void OnKeyPressed(sf::Keyboard::Scancode scancode) noexcept override;
+        void OnKeyReleased(sf::Keyboard::Scancode scancode) noexcept override;
+
         [[nodiscard]] bool IsKeyDown(KeyCode key) const noexcept override;
         [[nodiscard]] bool IsKeyPressed(KeyCode key) const noexcept override;
         [[nodiscard]] bool IsKeyReleased(KeyCode key) const noexcept override;
@@ -30,5 +34,9 @@ namespace GameLibrary
         static constexpr size_t KEY_COUNT = static_cast<size_t>(sf::Keyboard::ScancodeCount);
         std::array<bool, KEY_COUNT> m_currentState{};
         std::array<bool, KEY_COUNT> m_previousState{};
+
+        // 이벤트 큐
+        std::vector<sf::Keyboard::Scancode> m_pressedThisFrame{};
+        std::vector<sf::Keyboard::Scancode> m_releasedThisFrame{};
     };
 } // namespace GameLibrary

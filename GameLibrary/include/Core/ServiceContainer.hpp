@@ -1,5 +1,8 @@
 #pragma once
 
+#include "Interfaces/IInitializable.hpp"
+
+#include <concepts>
 #include <functional>
 #include <memory>
 #include <typeindex>
@@ -27,7 +30,16 @@ namespace GameLibrary
                 return std::make_shared<TImpl>();
             };
 
-            m_descriptors[key] = {creator, lifetime};
+            std::function<void(void*, ServiceContainer&)> initializer{};
+            if constexpr (std::derived_from<TImpl, IInitializable>)
+            {
+                initializer = [](void* service, ServiceContainer& container)
+                {
+                    static_cast<TImpl*>(service)->Init(container);
+                };
+            }
+
+            m_descriptors[key] = {creator, lifetime, initializer};
         }
 
         template <typename TInterface> void RegisterInstance(std::shared_ptr<TInterface> instance)
@@ -67,6 +79,15 @@ namespace GameLibrary
             return nullptr;
         }
 
+        void TryInit(std::type_index key, void* service)
+        {
+            auto it = m_descriptors.find(key);
+            if (it != m_descriptors.end() && it->second.initializer)
+            {
+                it->second.initializer(service, *this);
+            }
+        }
+
         void BeginScope() noexcept { m_scopedInstances.clear(); }
 
     private:
@@ -76,6 +97,7 @@ namespace GameLibrary
         {
             Creator creator{};
             ServiceLifetime lifetime{};
+            std::function<void(void*, ServiceContainer&)> initializer{};
         };
 
         template <typename TInterface>
