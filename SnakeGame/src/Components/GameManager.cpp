@@ -32,9 +32,6 @@ GameManager::GameManager(GameLibrary::EventSystem& eventSystem, GameLibrary::IIn
 
 void GameManager::Init()
 {
-    m_scoreChangedToken =
-        m_eventSystem.Subscribe<ScoreChangedEvent>([this](const ScoreChangedEvent& event) { OnScoreChanged(event); });
-
     m_foodEatenToken =
         m_eventSystem.Subscribe<FoodEatenEvent>([this](const FoodEatenEvent& event) { OnFoodEaten(event); });
 
@@ -79,13 +76,9 @@ void GameManager::Render(GameLibrary::IGraphics& graphics)
                        GameLibrary::TextAlign::Right);
 }
 
-void GameManager::OnScoreChanged(const ScoreChangedEvent& event)
-{
-    m_score = event.score;
-}
-
 void GameManager::OnFoodEaten(const FoodEatenEvent& event)
 {
+    m_score++;
     m_soundSystem.Play("eat");
 
     GameLibrary::ParticleFxConfig config{
@@ -119,10 +112,10 @@ void GameManager::OnGoldenFoodEaten(const GoldenFoodEatenEvent& event)
     m_fxSystem.Spawn<GameLibrary::ShakeFx>(3.0f, 0.5f);
 }
 
-void GameManager::OnGameOver(const GameOverEvent& event)
+void GameManager::OnGameOver([[maybe_unused]] const GameOverEvent& event)
 {
     m_isGameOver = true;
-    m_gameData.lastScore = event.score;
+    m_gameData.lastScore = m_score;
     m_soundSystem.Play("gameover");
 
     m_fxSystem.Spawn<GameLibrary::ShakeFx>(10.0f, 1.0f);

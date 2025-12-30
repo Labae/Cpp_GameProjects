@@ -7,7 +7,8 @@
 namespace GameLibrary
 {
     class IGraphics;
-}
+    class ICollidable;
+} // namespace GameLibrary
 
 class GoldenPickup : public GameLibrary::Component
 {
@@ -15,23 +16,20 @@ public:
     GoldenPickup(GameLibrary::Transform& transform, GameLibrary::EventSystem& eventSystem, int32_t gridSize,
                  float lifeTime = 3.0f);
 
-    void Init() override;
     void Update(float deltaTime) override;
     void Render(GameLibrary::IGraphics& graphics) override;
 
-    void Spawn(float x, float y);
-    void Despawn();
-    [[nodiscard]] bool IsActive() const noexcept { return m_isActive; }
+    void OnCollision(GameLibrary::ICollidable* other);
+
+    [[nodiscard]] bool IsExpired() const noexcept { return m_elapsedTime >= m_lifeTime; }
+    [[nodiscard]] bool IsEaten() const noexcept { return m_isEaten; }
 
 private:
-    void OnSnakeMoved(const struct SnakeMovedEvent& event);
-
     GameLibrary::Transform& m_transform;
     GameLibrary::EventSystem& m_eventSystem;
-    GameLibrary::SubscriptionToken m_snakeMovedToken{};
 
     int32_t m_gridSize{};
-    bool m_isActive{};
     float m_lifeTime{};
     float m_elapsedTime{};
+    bool m_isEaten{};
 };

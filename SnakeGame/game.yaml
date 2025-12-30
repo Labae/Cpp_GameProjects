@@ -1,8 +1,8 @@
 # Game Configuration
 
 # 스네이크 게임 설정
-gridSize: 10
-moveInterval: 0.2
+gridSize: 40
+moveInterval: 0.1
 gameOverDelay: 1.0
 headColor: 100,255,100
 tailColor: 255,100,100

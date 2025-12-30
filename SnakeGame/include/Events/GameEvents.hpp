@@ -22,10 +22,5 @@ struct GoldenFoodEatenEvent
 
 struct GameOverEvent
 {
-    int32_t score{};
-};
-
-struct ScoreChangedEvent
-{
-    int32_t score{};
+    // Reason?
 };

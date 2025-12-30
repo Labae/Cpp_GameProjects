@@ -10,24 +10,15 @@ Pickup::Pickup(GameLibrary::Transform& transform, GameLibrary::EventSystem& even
 {
 }
 
-void Pickup::Init()
-{
-    m_snakeMovedToken =
-        m_eventSystem.Subscribe<SnakeMovedEvent>([this](const SnakeMovedEvent& event) { OnSnakeMoved(event); });
-}
-
 void Pickup::Render(GameLibrary::IGraphics& graphics)
 {
     graphics.FillRect(static_cast<int32_t>(m_transform.position.x), static_cast<int32_t>(m_transform.position.y),
                       m_gridSize, m_gridSize, sf::Color(255, 0, 0, 255));
 }
 
-void Pickup::OnSnakeMoved(const SnakeMovedEvent& event)
+void Pickup::OnCollision([[maybe_unused]]GameLibrary::ICollidable* other)
 {
-    if (event.position == m_transform.position)
-    {
-        const float centerX = m_transform.position.x + static_cast<float>(m_gridSize) / 2.0f;
-        const float centerY = m_transform.position.y + static_cast<float>(m_gridSize) / 2.0f;
-        m_eventSystem.Publish(FoodEatenEvent{centerX, centerY});
-    }
+    const float centerX = m_transform.position.x + static_cast<float>(m_gridSize) * 0.5f;
+    const float centerY = m_transform.position.y + static_cast<float>(m_gridSize) * 0.5f;
+    m_eventSystem.Publish(FoodEatenEvent{centerX, centerY});
 }

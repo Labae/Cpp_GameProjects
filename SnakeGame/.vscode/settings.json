@@ -8,9 +8,10 @@
     },
     "editor.formatOnSave": true,
     "cSpell.words": [
+        "Collidable",
         "Initializable",
-        "SFML",
+        "nodiscard",
         "noexcept",
-        "nodiscard"
+        "SFML"
     ]
 }

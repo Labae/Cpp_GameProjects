@@ -11,6 +11,7 @@ namespace GameLibrary
 {
     class IInputProvider;
     class IGraphics;
+    class ICollidable;
     struct EngineConfig;
 } // namespace GameLibrary
 
@@ -30,8 +31,9 @@ public:
     void Update(float deltaTime) override;
     void Render(GameLibrary::IGraphics& graphics) override;
 
+    void OnCollision(GameLibrary::ICollidable* other);
+
 private:
-    void OnFoodEaten(const struct FoodEatenEvent& event);
     [[nodiscard]] bool CheckCollision() const;
 
     GameLibrary::Transform& m_transform;
@@ -40,13 +42,13 @@ private:
     const GameLibrary::EngineConfig& m_engineConfig;
     const SnakeGame::SnakeGameConfig& m_gameConfig;
 
-    GameLibrary::SubscriptionToken m_foodEatenToken{};
     GameLibrary::SubscriptionToken m_gameOverToken{};
 
     std::vector<sf::Vector2f> m_body{};
     sf::Vector2f m_direction{1.0f, 0.0f};
     float m_moveTimer{};
-    int32_t m_score{};
     bool m_shouldGrow{};
+
+    // 이것도 그럼.. 그냥 Component에 IsEnable를 추가하는게 좋을듯?
     bool m_isGameOver{};
 };

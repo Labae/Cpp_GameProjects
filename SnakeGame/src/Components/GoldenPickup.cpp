@@ -12,29 +12,19 @@ GoldenPickup::GoldenPickup(GameLibrary::Transform& transform, GameLibrary::Event
 {
 }
 
-void GoldenPickup::Init()
-{
-    m_snakeMovedToken =
-        m_eventSystem.Subscribe<SnakeMovedEvent>([this](const SnakeMovedEvent& event) { OnSnakeMoved(event); });
-}
-
 void GoldenPickup::Update(float deltaTime)
 {
-    if (!m_isActive)
+    if (m_isEaten)
     {
         return;
     }
 
     m_elapsedTime += deltaTime;
-    if (m_elapsedTime >= m_lifeTime)
-    {
-        Despawn();
-    }
 }
 
 void GoldenPickup::Render(GameLibrary::IGraphics& graphics)
 {
-    if (!m_isActive)
+    if (m_isEaten || IsExpired())
     {
         return;
     }
@@ -55,25 +45,16 @@ void GoldenPickup::Render(GameLibrary::IGraphics& graphics)
     }
 }
 
-void GoldenPickup::Spawn(float x, float y)
+void GoldenPickup::OnCollision([[maybe_unused]]GameLibrary::ICollidable* other)
 {
-    m_transform.position = {x, y};
-    m_elapsedTime = 0.0f;
-    m_isActive = true;
-}
-
-void GoldenPickup::Despawn()
-{
-    m_isActive = false;
-}
-
-void GoldenPickup::OnSnakeMoved(const SnakeMovedEvent& event)
-{
-    if (m_isActive && event.position == m_transform.position)
+    if (m_isEaten || IsExpired())
     {
-        const float centerX = m_transform.position.x + static_cast<float>(m_gridSize) / 2.0f;
-        const float centerY = m_transform.position.y + static_cast<float>(m_gridSize) / 2.0f;
-        m_eventSystem.Publish(GoldenFoodEatenEvent{centerX, centerY});
-        Despawn();
+        return;
     }
+
+    m_isEaten = true;
+
+    const float centerX = m_transform.position.x + static_cast<float>(m_gridSize) * 0.5f;
+    const float centerY = m_transform.position.y + static_cast<float>(m_gridSize) * 0.5f;
+    m_eventSystem.Publish(GoldenFoodEatenEvent{centerX, centerY});
 }

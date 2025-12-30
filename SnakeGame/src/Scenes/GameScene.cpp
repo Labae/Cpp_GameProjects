@@ -10,8 +10,10 @@
 #include "Core/EngineConfig.hpp"
 #include "Core/ServiceContainer.hpp"
 #include "Data/GameData.hpp"
+#include "GameObject/BoxCollider.hpp"
 #include "GameObject/GameObject.hpp"
 #include "Interfaces/IInputProvider.hpp"
+#include "Interfaces/IPhysicsSystem.hpp"
 #include "Interfaces/ISceneManager.hpp"
 #include "Systems/ConfigSystem.hpp"
 #include "Systems/EventSystem.hpp"
@@ -362,6 +364,7 @@ void GameScene::SetupGame()
     auto* sceneManager = container.Resolve<GameLibrary::ISceneManager>();
     auto* eventSystem = container.Resolve<GameLibrary::EventSystem>();
     auto* soundSystem = container.Resolve<GameLibrary::SoundSystem>();
+    auto* physicsSystem = container.Resolve<GameLibrary::IPhysicsSystem>();
 
     // GridBackground
     auto* grid = CreateGameObject();
@@ -377,18 +380,14 @@ void GameScene::SetupGame()
     snake->GetTransform().position = {
         static_cast<float>((engineConfig->screenWidth / 2 / gameConfig->gridSize) * gameConfig->gridSize),
         static_cast<float>((engineConfig->screenHeight / 2 / gameConfig->gridSize) * gameConfig->gridSize)};
-    snake->AddComponent<SnakeController>(snake->GetTransform(), *input, *eventSystem, *engineConfig, *gameConfig);
+    auto* snakeController =
+        snake->AddComponent<SnakeController>(snake->GetTransform(), *input, *eventSystem, *engineConfig, *gameConfig);
 
-    // Food
-    auto* food = CreateGameObject();
-    food->AddComponent<Pickup>(food->GetTransform(), *eventSystem, gameConfig->gridSize);
-
-    // GoldenFood
-    auto* goldenFood = CreateGameObject();
-    auto* goldenPickup =
-        goldenFood->AddComponent<GoldenPickup>(goldenFood->GetTransform(), *eventSystem, gameConfig->gridSize);
+    snake->AddComponent<GameLibrary::BoxCollider>(
+        snake->GetTransform(), *physicsSystem, gameConfig->gridSize, gameConfig->gridSize,
+        [snakeController](GameLibrary::ICollidable* other) { snakeController->OnCollision(other); });
 
     // FoodSpawner
     auto* spawner = CreateGameObject();
-    spawner->AddComponent<FoodSpawner>(food->GetTransform(), *goldenPickup, *eventSystem, *engineConfig, *gameConfig);
+    spawner->AddComponent<FoodSpawner>(*this, *eventSystem, *engineConfig, *gameConfig);
 }

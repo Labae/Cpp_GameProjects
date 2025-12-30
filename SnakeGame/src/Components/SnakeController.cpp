@@ -21,9 +21,6 @@ SnakeController::SnakeController(GameLibrary::Transform& transform, GameLibrary:
 
 void SnakeController::Init()
 {
-    m_foodEatenToken =
-        m_eventSystem.Subscribe<FoodEatenEvent>([this](const FoodEatenEvent& event) { OnFoodEaten(event); });
-
     m_gameOverToken = m_eventSystem.Subscribe<GameOverEvent>([this]([[maybe_unused]] const GameOverEvent& event)
                                                              { m_isGameOver = true; });
 }
@@ -64,7 +61,7 @@ void SnakeController::Update(float deltaTime)
 
         if (CheckCollision())
         {
-            m_eventSystem.Publish(GameOverEvent{m_score});
+            m_eventSystem.Publish(GameOverEvent{});
             return;
         }
 
@@ -113,6 +110,16 @@ void SnakeController::Render(GameLibrary::IGraphics& graphics)
     }
 }
 
+void SnakeController::OnCollision([[maybe_unused]] GameLibrary::ICollidable* other)
+{
+    if (m_isGameOver)
+    {
+        return;
+    }
+
+    m_shouldGrow = true;
+}
+
 bool SnakeController::CheckCollision() const
 {
     // 벽 충돌
@@ -132,11 +139,4 @@ bool SnakeController::CheckCollision() const
     }
 
     return false;
-}
-
-void SnakeController::OnFoodEaten([[maybe_unused]] const FoodEatenEvent& event)
-{
-    m_shouldGrow = true;
-    m_score++;
-    m_eventSystem.Publish(ScoreChangedEvent{m_score});
 }

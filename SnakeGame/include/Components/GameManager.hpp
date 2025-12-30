@@ -34,7 +34,6 @@ public:
     [[nodiscard]] int32_t GetScore() const noexcept { return m_score; }
 
 private:
-    void OnScoreChanged(const struct ScoreChangedEvent& event);
     void OnFoodEaten(const struct FoodEatenEvent& event);
     void OnGoldenFoodEaten(const struct GoldenFoodEatenEvent& event);
     void OnGameOver(const struct GameOverEvent& event);
@@ -47,7 +46,6 @@ private:
     SnakeGame::GameData& m_gameData;
     GameLibrary::FxSystem& m_fxSystem;
 
-    GameLibrary::SubscriptionToken m_scoreChangedToken{};
     GameLibrary::SubscriptionToken m_goldenFoodEatenToken{};
     GameLibrary::SubscriptionToken m_foodEatenToken{};
     GameLibrary::SubscriptionToken m_gameOverToken{};
