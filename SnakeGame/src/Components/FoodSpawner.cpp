@@ -82,15 +82,14 @@ void FoodSpawner::OnFoodEaten([[maybe_unused]] const FoodEatenEvent& event)
 
     static std::mt19937 gen{std::random_device{}()};
     std::uniform_int_distribution<int32_t> chanceDist(1, 10);
-    SpawnMovingFood();
-    // if (const int32_t chance = chanceDist(gen); chance <= 2)
-    // {
-    //     SpawnGoldenFood();
-    // }
-    // else if (chance == 3)
-    // {
-    //     SpawnMovingFood();
-    // }
+    if (const int32_t chance = chanceDist(gen); chance <= 2)
+    {
+        SpawnGoldenFood();
+    }
+    else if (chance == 3)
+    {
+        SpawnMovingFood();
+    }
 }
 
 void FoodSpawner::SpawnGoldenFood()
