@@ -38,7 +38,7 @@ private:
         Settings
     };
 
-    void ApplyConfig();
+    void ApplyConfig() const;
     void SetupGame();
 
     void UpdatePauseMenu();

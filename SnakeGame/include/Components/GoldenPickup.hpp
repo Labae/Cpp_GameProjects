@@ -20,7 +20,7 @@ public:
     void Update(float deltaTime) override;
     void Render(GameLibrary::IGraphics& graphics) override;
 
-    void OnCollision(GameLibrary::Actor* other);
+    void OnCollision(const GameLibrary::Actor* other);
 
     [[nodiscard]] bool IsExpired() const noexcept { return m_elapsedTime >= m_lifeTime; }
     [[nodiscard]] bool IsEaten() const noexcept { return m_isEaten; }

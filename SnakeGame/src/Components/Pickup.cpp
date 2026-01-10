@@ -18,10 +18,17 @@ void Pickup::Render(GameLibrary::IGraphics& graphics)
                       m_gridSize, m_gridSize, sf::Color(255, 0, 0, 255));
 }
 
-void Pickup::OnCollision([[maybe_unused]]GameLibrary::Actor* other) const
+void Pickup::OnCollision(const GameLibrary::Actor* other) const
 {
+    if (other->GetTag() != "Snake")
+    {
+        return;
+    }
+
     const auto& transform = m_owner->GetTransform();
     const float centerX = transform.position.x + static_cast<float>(m_gridSize) * 0.5f;
     const float centerY = transform.position.y + static_cast<float>(m_gridSize) * 0.5f;
     m_eventSystem.Publish(FoodEatenEvent{centerX, centerY});
+
+    m_owner->Destroy();
 }

@@ -353,7 +353,7 @@ void GameScene::RenderSettings(GameLibrary::IGraphics& graphics) const
                        GameLibrary::TextAlign::Center);
 }
 
-void GameScene::ApplyConfig()
+void GameScene::ApplyConfig() const
 {
     auto& container = GetContainer();
     auto* configSystem = container.Resolve<GameLibrary::ConfigService>();
@@ -391,6 +391,8 @@ void GameScene::SetupGame()
 
     // Snake
     auto* snake = CreateActor<GameLibrary::Pawn>();
+    snake->SetTag("Snake");
+
     snake->GetTransform().position = {
         static_cast<float>((engineConfig->screenWidth / 2 / gameConfig->gridSize) * gameConfig->gridSize),
         static_cast<float>((engineConfig->screenHeight / 2 / gameConfig->gridSize) * gameConfig->gridSize)};

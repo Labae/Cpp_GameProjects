@@ -18,7 +18,7 @@ public:
 
     void Render(GameLibrary::IGraphics& graphics) override;
 
-    void OnCollision(GameLibrary::Actor* other) const;
+    void OnCollision(const GameLibrary::Actor* other) const;
 
 private:
     GameLibrary::EventService& m_eventSystem;

@@ -82,6 +82,9 @@ namespace GameLibrary
 
         [[nodiscard]] bool IsPendingDestroy() const noexcept { return m_pendingDestroy; }
 
+        void SetTag(const std::string& tag) noexcept { m_tag = tag; }
+        [[nodiscard]] std::string GetTag() const noexcept { return m_tag; }
+
     protected:
         Transform* m_transform;
         Scene* const m_scene;
@@ -93,6 +96,8 @@ namespace GameLibrary
         bool m_updateEnabled{true};
         bool m_renderEnabled{true};
         bool m_pendingDestroy{false};
+
+        std::string m_tag{};
 
         std::vector<std::unique_ptr<Component>> m_components{};
         std::unordered_map<std::type_index, Component*> m_componentsMap{};

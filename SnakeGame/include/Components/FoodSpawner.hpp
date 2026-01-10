@@ -2,9 +2,10 @@
 
 #include "Actor/Component.hpp"
 #include "Actor/Transform.hpp"
-#include "Services/EventService.hpp"
 #include "Components/GoldenPickup.hpp"
+#include "MovingPickup.hpp"
 #include "Scene/Scene.hpp"
+#include "Services/EventService.hpp"
 
 namespace GameLibrary
 {
@@ -30,6 +31,7 @@ private:
 
     void SpawnFood() const;
     void SpawnGoldenFood();
+    void SpawnMovingFood();
 
     [[nodiscard]] sf::Vector2f GetRandomPosition() const;
 
@@ -46,4 +48,11 @@ private:
         GoldenPickup* pickup{};
     };
     std::vector<GoldenFoodEntry> m_goldenFoods{};
+
+    struct MovingFoodEntry
+    {
+        GameLibrary::Actor* actor{};
+        MovingPickup* pickup{};
+    };
+    std::vector<MovingFoodEntry> m_movingFoods{};
 };

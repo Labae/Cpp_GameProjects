@@ -47,8 +47,13 @@ void GoldenPickup::Render(GameLibrary::IGraphics& graphics)
     }
 }
 
-void GoldenPickup::OnCollision([[maybe_unused]] GameLibrary::Actor* other)
+void GoldenPickup::OnCollision(const GameLibrary::Actor* other)
 {
+    if (other->GetTag() != "Snake")
+    {
+        return;
+    }
+
     if (m_isEaten || IsExpired())
     {
         return;
@@ -61,4 +66,6 @@ void GoldenPickup::OnCollision([[maybe_unused]] GameLibrary::Actor* other)
     const float centerX = transform.position.x + static_cast<float>(m_gridSize) * 0.5f;
     const float centerY = transform.position.y + static_cast<float>(m_gridSize) * 0.5f;
     m_eventSystem.Publish(GoldenFoodEatenEvent{centerX, centerY});
+
+    m_owner->Destroy();
 }
