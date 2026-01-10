@@ -4,7 +4,7 @@
 
 #ifndef AUTOGRIDMOVEMENTCOMPONENT_HPP
 #define AUTOGRIDMOVEMENTCOMPONENT_HPP
-#include "MovementComponent.hpp"
+#include "../Components/MovementComponent.hpp"
 
 namespace GameLibrary
 {

@@ -5,9 +5,8 @@
 #ifndef ACTOR_HPP
 #define ACTOR_HPP
 
+#include "../Components/Transform.hpp"
 #include "Interfaces/IGraphics.hpp"
-
-#include "Actor/Transform.hpp"
 
 #include <memory>
 #include <typeindex>

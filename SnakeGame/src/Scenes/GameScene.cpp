@@ -1,6 +1,6 @@
 #include "Scenes/GameScene.hpp"
 
-#include "Actor/BoxCollider.hpp"
+#include "../../../GameLibrary/include/Components/BoxCollider.hpp"
 #include "Components/FoodSpawner.hpp"
 #include "Components/GameManager.hpp"
 #include "Components/GridBackground.hpp"

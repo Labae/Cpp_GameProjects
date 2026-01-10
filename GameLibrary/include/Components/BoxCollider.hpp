@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor/Component.hpp"
+#include "Components//Component.hpp"
 #include "Interfaces/ICollidable.hpp"
 
 #include <functional>

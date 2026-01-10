@@ -1,9 +1,8 @@
 #include "Components/FoodSpawner.hpp"
 
-#include "Actor/AutoGridMovementComponent.hpp"
-#include "Actor/BoxCollider.hpp"
-#include "Actor/LinearMovementComponent.hpp"
-#include "Actor/MovementComponent.hpp"
+#include "Components/MovementComponent.hpp"
+#include "Components/AutoGridMovementComponent.hpp"
+#include "Components/BoxCollider.hpp"
 #include "Components/GoldenPickup.hpp"
 #include "Components/MovingPickup.hpp"
 #include "Components/Pickup.hpp"

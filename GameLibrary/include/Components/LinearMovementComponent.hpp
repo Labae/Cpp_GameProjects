@@ -4,7 +4,7 @@
 
 #ifndef LINEARMOVEMENTCOMPONENT_HPP
 #define LINEARMOVEMENTCOMPONENT_HPP
-#include "MovementComponent.hpp"
+#include "../Components/MovementComponent.hpp"
 
 namespace GameLibrary
 {

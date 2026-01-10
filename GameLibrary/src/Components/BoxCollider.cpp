@@ -1,7 +1,7 @@
-#include "Actor/BoxCollider.hpp"
+#include "Components/BoxCollider.hpp"
 
+#include "Components/Transform.hpp"
 #include "Actor/Actor.hpp"
-#include "Actor/Transform.hpp"
 #include "Services/PhysicsService.hpp"
 
 namespace GameLibrary

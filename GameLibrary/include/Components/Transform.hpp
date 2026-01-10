@@ -1,6 +1,7 @@
 #pragma once
 
-#include "Actor/Component.hpp"
+#include "Component.hpp"
+
 #include <SFML/System/Vector2.hpp>
 
 namespace GameLibrary

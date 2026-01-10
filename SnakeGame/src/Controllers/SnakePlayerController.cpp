@@ -4,8 +4,9 @@
 
 #include "Controllers/SnakePlayerController.hpp"
 
-#include "Actor/GridMovementComponent.hpp"
+#include "../../../GameLibrary/include/Components/GridMovementComponent.hpp"
 #include "Actor/Pawn.hpp"
+
 #include <SFML/System/Vector2.hpp>
 
 namespace SnakeGame

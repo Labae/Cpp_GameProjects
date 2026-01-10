@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Actor/Component.hpp"
-#include "Actor/GridMovementComponent.hpp"
+#include "../../../GameLibrary/include/Components/Component.hpp"
+#include "../../../GameLibrary/include/Components/GridMovementComponent.hpp"
 #include "Services/EventService.hpp"
 
 #include <SFML/System/Vector2.hpp>

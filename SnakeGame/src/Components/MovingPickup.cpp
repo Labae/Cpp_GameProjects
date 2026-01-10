@@ -4,8 +4,8 @@
 
 #include "Components/MovingPickup.hpp"
 
+#include "../../../GameLibrary/include/Components/AutoGridMovementComponent.hpp"
 #include "Actor/Actor.hpp"
-#include "Actor/AutoGridMovementComponent.hpp"
 #include "Core/EngineConfig.hpp"
 #include "Events/GameEvents.hpp"
 #include "Interfaces/IGraphics.hpp"

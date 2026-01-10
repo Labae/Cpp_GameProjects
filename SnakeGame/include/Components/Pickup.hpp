@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor/Component.hpp"
+#include "../../../GameLibrary/include/Components/Component.hpp"
 #include "Services/EventService.hpp"
 
 namespace GameLibrary

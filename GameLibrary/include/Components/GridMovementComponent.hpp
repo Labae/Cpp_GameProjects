@@ -4,7 +4,7 @@
 
 #ifndef GRIDMOVEMENTCOMPONENT_HPP
 #define GRIDMOVEMENTCOMPONENT_HPP
-#include "MovementComponent.hpp"
+#include "../Components/MovementComponent.hpp"
 
 namespace GameLibrary
 {

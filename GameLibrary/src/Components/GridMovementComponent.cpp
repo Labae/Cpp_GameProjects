@@ -2,7 +2,7 @@
 // Created by Labae on 1/11/26.
 //
 
-#include "Actor/GridMovementComponent.hpp"
+#include "Components/GridMovementComponent.hpp"
 namespace GameLibrary
 {
     GridMovementComponent::GridMovementComponent(Actor* owner, const int32_t gridSize, const float moveInterval)

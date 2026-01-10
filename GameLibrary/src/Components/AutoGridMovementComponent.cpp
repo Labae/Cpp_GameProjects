@@ -2,7 +2,7 @@
 // Created by Labae on 1/11/26.
 //
 
-#include "Actor/AutoGridMovementComponent.hpp"
+#include "Components/AutoGridMovementComponent.hpp"
 namespace GameLibrary
 {
 

@@ -2,7 +2,7 @@
 // Created by Labae on 1/11/26.
 //
 
-#include "Actor/LinearMovementComponent.hpp"
+#include "Components/LinearMovementComponent.hpp"
 namespace GameLibrary
 {
 

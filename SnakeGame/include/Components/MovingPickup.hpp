@@ -4,7 +4,7 @@
 
 #ifndef MOVINGPICKUP_HPP
 #define MOVINGPICKUP_HPP
-#include "Actor/Component.hpp"
+#include "../../../GameLibrary/include/Components/Component.hpp"
 
 #include <cstdint>
 

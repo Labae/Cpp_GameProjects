@@ -4,7 +4,7 @@
 
 #include "Actor/Actor.hpp"
 
-#include "Actor/Component.hpp"
+#include "Components/Component.hpp"
 #include "Scene/Scene.hpp"
 
 namespace GameLibrary

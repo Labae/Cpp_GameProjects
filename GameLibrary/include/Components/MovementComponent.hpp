@@ -6,7 +6,7 @@
 #define MOVEMENTCOMPONENT_HPP
 
 #include "Component.hpp"
-#include "Pawn.hpp"
+#include "Actor/Pawn.hpp"
 
 #include <SFML/System/Vector2.hpp>
 

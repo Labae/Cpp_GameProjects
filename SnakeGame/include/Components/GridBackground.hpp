@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Actor/Component.hpp"
+#include "../../../GameLibrary/include/Components/Component.hpp"
 #include "Interfaces/IGraphics.hpp"
 
 #include <SFML/Graphics/Color.hpp>
