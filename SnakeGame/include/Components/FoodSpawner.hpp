@@ -1,11 +1,10 @@
 #pragma once
 
+#include "Actor/Component.hpp"
+#include "Actor/Transform.hpp"
+#include "Services/EventService.hpp"
 #include "Components/GoldenPickup.hpp"
-#include "Components/Pickup.hpp"
-#include "GameObject/Component.hpp"
-#include "GameObject/Transform.hpp"
 #include "Scene/Scene.hpp"
-#include "Systems/EventSystem.hpp"
 
 namespace GameLibrary
 {
@@ -17,10 +16,10 @@ namespace SnakeGame
     struct SnakeGameConfig;
 }
 
-class FoodSpawner : public GameLibrary::Component
+class FoodSpawner final : public GameLibrary::Component
 {
 public:
-    FoodSpawner(GameLibrary::Scene& scene, GameLibrary::EventSystem& eventSystem,
+    FoodSpawner(GameLibrary::Actor* owner, GameLibrary::Scene& scene, GameLibrary::EventService& eventSystem,
                 const GameLibrary::EngineConfig& engineConfig, const SnakeGame::SnakeGameConfig& gameConfig);
 
     void Init() override;
@@ -29,13 +28,13 @@ public:
 private:
     void OnFoodEaten(const struct FoodEatenEvent& event);
 
-    void SpawnFood();
+    void SpawnFood() const;
     void SpawnGoldenFood();
 
-    sf::Vector2f GetRandomPosition() const;
+    [[nodiscard]] sf::Vector2f GetRandomPosition() const;
 
     GameLibrary::Scene& m_scene;
-    GameLibrary::EventSystem& m_eventSystem;
+    GameLibrary::EventService& m_eventSystem;
     const GameLibrary::EngineConfig& m_engineConfig;
     const SnakeGame::SnakeGameConfig& m_gameConfig;
 
@@ -43,7 +42,7 @@ private:
 
     struct GoldenFoodEntry
     {
-        GameLibrary::GameObject* gameObject{};
+        GameLibrary::Actor* actor{};
         GoldenPickup* pickup{};
     };
     std::vector<GoldenFoodEntry> m_goldenFoods{};

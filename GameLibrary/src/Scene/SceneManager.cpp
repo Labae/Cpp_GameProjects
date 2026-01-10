@@ -20,7 +20,7 @@ namespace GameLibrary
         return m_currentScene.get();
     }
 
-    void SceneManager::Update(float deltaTime)
+    void SceneManager::Update(const float deltaTime)
     {
         if (!m_pendingScene.empty())
         {
@@ -29,8 +29,7 @@ namespace GameLibrary
                 m_currentScene->OnExit();
             }
 
-            auto it = m_factories.find(m_pendingScene);
-            if (it != m_factories.end())
+            if (const auto it = m_factories.find(m_pendingScene); it != m_factories.end())
             {
                 m_currentScene = it->second();
                 m_currentScene->OnEnter();
@@ -45,7 +44,7 @@ namespace GameLibrary
         }
     }
 
-    void SceneManager::Render(IGraphics& graphics)
+    void SceneManager::Render(IGraphics& graphics) const
     {
         if (m_currentScene)
         {

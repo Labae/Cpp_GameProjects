@@ -17,7 +17,7 @@ public:
 
 private:
     void RegisterScenes();
-    void LoadSounds();
+    void LoadResources();
     void LoadGameData();
     void SaveGameData();
 

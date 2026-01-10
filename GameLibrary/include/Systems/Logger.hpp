@@ -24,7 +24,7 @@ namespace GameLibrary
         Logger& operator=(const Logger&) = delete;
         Logger& operator=(Logger&&) = delete;
 
-        static void Log(LogLevel level, const std::string& message)
+        static void Log(const LogLevel level, const std::string& message)
         {
             std::string prefix;
 

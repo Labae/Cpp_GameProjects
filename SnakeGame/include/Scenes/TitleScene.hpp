@@ -5,11 +5,11 @@
 namespace GameLibrary
 {
     class IInputProvider;
-    class ISceneManager;
     struct EngineConfig;
+    class SceneManager;
 } // namespace GameLibrary
 
-class TitleScene : public GameLibrary::Scene
+class TitleScene final : public GameLibrary::Scene
 {
 public:
     TitleScene(const std::string& name, GameLibrary::ServiceContainer& container);
@@ -20,7 +20,7 @@ public:
 
 private:
     GameLibrary::IInputProvider* m_input{};
-    GameLibrary::ISceneManager* m_sceneManager{};
+    GameLibrary::SceneManager* m_sceneManager{};
     const GameLibrary::EngineConfig* m_engineConfig{};
 
     float m_blinkTimer{};

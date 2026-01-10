@@ -1,27 +1,23 @@
 #include "Core/Engine.hpp"
 
+#include "../../include/Services/AudioService.hpp"
+#include "../../include/Services/ConfigService.hpp"
+#include "../../include/Services/EventService.hpp"
+#include "../../include/Services/FxService.hpp"
+#include "../../include/Services/GraphicsService.hpp"
+#include "../../include/Services/InputService.hpp"
+#include "../../include/Services/PhysicsService.hpp"
+#include "../../include/Services/SaveService.hpp"
+#include "../../include/Services/TimeService.hpp"
+#include "../../include/Systems/Logger.hpp"
 #include "Core/EngineConfig.hpp"
 #include "Core/ServiceContainer.hpp"
 #include "Interfaces/IGraphics.hpp"
 #include "Interfaces/IInputProvider.hpp"
-#include "Interfaces/IPhysicsSystem.hpp"
-#include "Interfaces/ISceneManager.hpp"
-#include "Interfaces/ITimeProvider.hpp"
 #include "Platform/Window.hpp"
 #include "Scene/Scene.hpp"
 #include "Scene/SceneManager.hpp"
-#include "Systems/ConfigSystem.hpp"
-#include "Systems/EventSystem.hpp"
-#include "Systems/FxSystem.hpp"
-#include "Systems/GraphicsSystem.hpp"
-#include "Systems/InputSystem.hpp"
-#include "Systems/Logger.hpp"
-#include "Systems/PhysicsSystem.hpp"
-#include "Systems/SaveSystem.hpp"
-#include "Systems/SoundSystem.hpp"
-#include "Systems/TimeSystem.hpp"
-
-#include <concepts>
+#include "Services/ResourceService.hpp"
 
 namespace GameLibrary
 {
@@ -56,10 +52,15 @@ namespace GameLibrary
     {
         m_isRunning = false;
 
-        if (m_soundSystem)
+        if (m_resourceService)
         {
-            m_soundSystem->StopAll();
-            m_soundSystem->StopBGM();
+            m_resourceService->UnloadAll();
+        }
+
+        if (m_soundService)
+        {
+            m_soundService->StopAll();
+            m_soundService->StopBGM();
         }
 
         if (m_sceneManager)
@@ -71,9 +72,9 @@ namespace GameLibrary
             }
         }
 
-        if (m_eventSystem)
+        if (m_eventService)
         {
-            m_eventSystem->Clear();
+            m_eventService->Clear();
         }
 
         if (m_window)
@@ -82,18 +83,18 @@ namespace GameLibrary
         }
     }
 
-    void Engine::ReloadConfig()
+    void Engine::ReloadConfig() const
     {
-        if (!m_configSystem)
+        if (!m_configService)
         {
             return;
         }
 
-        m_configSystem->Clear();
+        m_configService->Clear();
 
         if (!m_config.configPath.empty())
         {
-            if (!m_configSystem->LoadFromFile(m_config.configPath))
+            if (!m_configService->LoadFromFile(m_config.configPath))
             {
                 Logger::Warning("Failed to load config: " + m_config.configPath);
             }
@@ -106,75 +107,77 @@ namespace GameLibrary
     {
         m_container.RegisterInstance<EngineConfig>(std::make_shared<EngineConfig>(m_config));
         m_container.Register<Window, Window>();
-        m_container.Register<ITimeProvider, TimeSystem>();
-        m_container.Register<IInputProvider, InputSystem>();
-        m_container.Register<IGraphics, GraphicsSystem>();
-        m_container.Register<IPhysicsSystem, PhysicsSystem>();
-        m_container.Register<ISceneManager, SceneManager>();
-        m_container.Register<SaveSystem, SaveSystem>();
-        m_container.Register<ConfigSystem, ConfigSystem>();
-        m_container.Register<EventSystem, EventSystem>();
-        m_container.Register<SoundSystem, SoundSystem>();
-        m_container.Register<FxSystem, FxSystem>();
+        m_container.Register<TimeService, TimeService>();
+        m_container.Register<IInputProvider, InputService>();
+        m_container.Register<IGraphics, GraphicsService>();
+        m_container.Register<PhysicsService, PhysicsService>();
+        m_container.Register<SceneManager, SceneManager>();
+        m_container.Register<SaveService, SaveService>();
+        m_container.Register<ConfigService, ConfigService>();
+        m_container.Register<EventService, EventService>();
+        m_container.Register<AudioService, AudioService>();
+        m_container.Register<FxService, FxService>();
+        m_container.Register<ResourceService, ResourceService>();
     }
 
     void Engine::InitializeServices()
     {
-        m_configSystem = TryInitialize<ConfigSystem>();
+        m_configService = TryInitialize<ConfigService>();
         if (!m_config.configPath.empty())
         {
-            if (!m_configSystem->LoadFromFile(m_config.configPath))
+            if (!m_configService->LoadFromFile(m_config.configPath))
             {
                 Logger::Warning("Failed to load config: " + m_config.configPath);
             }
         }
 
-        m_config.screenWidth = m_configSystem->GetInt("screenWidth", m_config.screenWidth);
-        m_config.screenHeight = m_configSystem->GetInt("screenHeight", m_config.screenHeight);
+        m_config.screenWidth = m_configService->GetInt("screenWidth", m_config.screenWidth);
+        m_config.screenHeight = m_configService->GetInt("screenHeight", m_config.screenHeight);
 
         m_window = TryInitialize<Window>();
         m_inputProvider = TryInitialize<IInputProvider>();
         m_graphics = TryInitialize<IGraphics>();
-        m_sceneManager = TryInitialize<ISceneManager>();
-        m_timeProvider = TryInitialize<ITimeProvider>();
-        m_physicsSystem = TryInitialize<IPhysicsSystem>();
-        m_eventSystem = TryInitialize<EventSystem>();
-        m_saveSystem = TryInitialize<SaveSystem>();
-        m_soundSystem = TryInitialize<SoundSystem>();
-        m_fxSystem = TryInitialize<FxSystem>();
+        m_sceneManager = TryInitialize<SceneManager>();
+        m_timeService = TryInitialize<TimeService>();
+        m_physicsService = TryInitialize<PhysicsService>();
+        m_eventService = TryInitialize<EventService>();
+        m_saveService = TryInitialize<SaveService>();
+        m_soundService = TryInitialize<AudioService>();
+        m_fxService = TryInitialize<FxService>();
+        m_resourceService = TryInitialize<ResourceService>();
     }
 
-    void Engine::Update()
+    void Engine::Update() const
     {
-        m_timeProvider->Update();
+        m_timeService->Update();
         m_inputProvider->Update();
 
         ProcessGlobalInput();
 
-        float deltaTime = m_timeProvider->GetDeltaTime();
+        const float deltaTime = m_timeService->GetDeltaTime();
         m_sceneManager->Update(deltaTime);
 
-        if (m_physicsSystem)
+        if (m_physicsService)
         {
-            m_physicsSystem->CheckCollisions();
+            m_physicsService->CheckCollisions();
         }
     }
 
-    void Engine::Render()
+    void Engine::Render() const
     {
         m_graphics->Clear({0, 0, 0, 255});
         m_sceneManager->Render(*m_graphics);
         m_graphics->Present();
     }
 
-    void Engine::ProcessGlobalInput()
+    void Engine::ProcessGlobalInput() const
     {
         // F5: Config 리로드 후 현재 씬 재시작
         if (m_inputProvider->IsKeyPressed(KeyCode::F5))
         {
             ReloadConfig();
 
-            if (auto* currentScene = m_sceneManager->GetCurrentScene())
+            if (const auto* currentScene = m_sceneManager->GetCurrentScene())
             {
                 m_sceneManager->LoadScene(currentScene->GetName());
             }

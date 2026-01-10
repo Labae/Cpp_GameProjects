@@ -5,16 +5,16 @@
 #include "Data/GameData.hpp"
 #include "Interfaces/IGraphics.hpp"
 #include "Interfaces/IInputProvider.hpp"
-#include "Interfaces/ISceneManager.hpp"
+#include "Scene/SceneManager.hpp"
+#include "Services/SaveService.hpp"
 #include "Systems/Logger.hpp"
-#include "Systems/SaveSystem.hpp"
 
 #include <format>
 
 namespace
 {
-    constexpr const char* SAVE_FILE_PATH = "savedata.dat";
-    constexpr const char* KEY_HIGH_SCORE = "highScore";
+    constexpr auto SAVE_FILE_PATH = "savedata.dat";
+    constexpr auto KEY_HIGH_SCORE = "highScore";
 } // namespace
 
 ResultScene::ResultScene(const std::string& name, GameLibrary::ServiceContainer& container) : Scene(name, container) {}
@@ -23,7 +23,7 @@ void ResultScene::OnEnter()
 {
     auto& container = GetContainer();
     m_input = container.Resolve<GameLibrary::IInputProvider>();
-    m_sceneManager = container.Resolve<GameLibrary::ISceneManager>();
+    m_sceneManager = container.Resolve<GameLibrary::SceneManager>();
     m_engineConfig = container.Resolve<GameLibrary::EngineConfig>();
     m_gameData = container.Resolve<SnakeGame::GameData>();
 
@@ -34,7 +34,7 @@ void ResultScene::OnEnter()
         m_isNewHighScore = true;
 
         // 즉시 저장
-        if (auto* saveSystem = container.Resolve<GameLibrary::SaveSystem>())
+        if (auto* saveSystem = container.Resolve<GameLibrary::SaveService>())
         {
             saveSystem->SetInt(KEY_HIGH_SCORE, m_gameData->highScore);
             if (!saveSystem->SaveToFile(SAVE_FILE_PATH))

@@ -1,10 +1,10 @@
 #pragma once
 
-#include "GameObject/GameObject.hpp"
-
 #include <memory>
 #include <string>
 #include <vector>
+
+#include "Actor/Actor.hpp"
 
 namespace GameLibrary
 {
@@ -25,20 +25,34 @@ namespace GameLibrary
         virtual void OnEnter() {}
         virtual void OnExit() {}
 
-        [[nodiscard]] GameObject* CreateGameObject();
-        void DestroyGameObject(GameObject* gameObject);
+        Actor* CreateActor();
+        template <typename T, typename... Args>
+        T* CreateActor(Args&&... args)
+        {
+            auto actor = std::make_unique<T>(this, std::forward<Args>(args)...);
+            auto* ptr = actor.get();
+
+            ptr->OnCreate();
+            m_actors.emplace_back(std::move(actor));
+
+            return ptr;
+        }
+
+        void DestroyActor(Actor* actor);
 
         virtual void Update(float deltaTime);
         virtual void Render(IGraphics& graphics);
         void Clear();
 
         [[nodiscard]] const std::string& GetName() const noexcept { return m_name; }
-        [[nodiscard]] ServiceContainer& GetContainer() noexcept { return m_container; }
+        [[nodiscard]] ServiceContainer& GetContainer() const noexcept { return m_container; }
 
     private:
+        void ProcessPendingDestroy();
+
         std::string m_name{};
         ServiceContainer& m_container;
-        std::vector<std::unique_ptr<GameObject>> m_gameObjects{};
-        std::vector<GameObject*> m_pendingDestroy{};
+        std::vector<std::unique_ptr<Actor>> m_actors{};
+        std::vector<Actor*> m_pendingDestroy{};
     };
 } // namespace GameLibrary

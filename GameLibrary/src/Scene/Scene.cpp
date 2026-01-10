@@ -1,6 +1,6 @@
 #include "Scene/Scene.hpp"
 
-#include "GameObject/GameObject.hpp"
+#include "Actor/Actor.hpp"
 #include "Interfaces/IGraphics.hpp"
 
 #include <algorithm>
@@ -11,45 +11,44 @@ namespace GameLibrary
     {
     }
 
-    GameObject* Scene::CreateGameObject()
+    Actor* Scene::CreateActor()
     {
-        auto gameObject = std::make_unique<GameObject>();
-        auto* ptr = gameObject.get();
-        m_gameObjects.emplace_back(std::move(gameObject));
+        auto actor = std::make_unique<Actor>(this);
+        auto* ptr = actor.get();
+        m_actors.emplace_back(std::move(actor));
+
         return ptr;
     }
 
-    void Scene::DestroyGameObject(GameObject* gameObject)
+    void Scene::DestroyActor(Actor* actor)
     {
-        m_pendingDestroy.emplace_back(gameObject);
+        if (not actor)
+        {
+            return;
+        }
+
+        if (const auto it = std::ranges::find(m_pendingDestroy, actor); it == m_pendingDestroy.end())
+        {
+            m_pendingDestroy.emplace_back(actor);
+        }
     }
 
-    void Scene::Update(float deltaTime)
+    void Scene::Update(const float deltaTime)
     {
-        for (auto& gameObject : m_gameObjects)
+        for (const auto& actor : m_actors)
         {
-            if (gameObject->IsActive())
+            if (actor->IsActive() and not actor->IsPendingDestroy())
             {
-                gameObject->Update(deltaTime);
+                actor->Update(deltaTime);
             }
         }
 
-        for (auto* gameObject : m_pendingDestroy)
-        {
-            gameObject->Destroy();
-            auto it = std::find_if(m_gameObjects.begin(), m_gameObjects.end(),
-                                   [gameObject](const auto& ptr) { return ptr.get() == gameObject; });
-            if (it != m_gameObjects.end())
-            {
-                m_gameObjects.erase(it);
-            }
-        }
-        m_pendingDestroy.clear();
+        ProcessPendingDestroy();
     }
 
     void Scene::Render(IGraphics& graphics)
     {
-        for (auto& gameObject : m_gameObjects)
+        for (const auto& gameObject : m_actors)
         {
             if (gameObject->IsActive())
             {
@@ -60,11 +59,26 @@ namespace GameLibrary
 
     void Scene::Clear()
     {
-        for (auto& gameObject : m_gameObjects)
+        for (const auto& actor : m_actors)
         {
-            gameObject->Destroy();
+            actor->DestroyInternal();
         }
-        m_gameObjects.clear();
+        m_actors.clear();
+        m_pendingDestroy.clear();
+    }
+
+    void Scene::ProcessPendingDestroy()
+    {
+        for (auto* actor : m_pendingDestroy)
+        {
+            actor->DestroyInternal();
+            auto it = std::ranges::find_if(m_actors,
+                                   [actor](const auto& ptr) { return ptr.get() == actor; });
+            if (it != m_actors.end())
+            {
+                m_actors.erase(it);
+            }
+        }
         m_pendingDestroy.clear();
     }
 } // namespace GameLibrary

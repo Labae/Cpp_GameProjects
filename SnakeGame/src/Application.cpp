@@ -1,32 +1,30 @@
 #include "Application.hpp"
 
+#include "../../GameLibrary/include/Services/AudioService.hpp"
+#include "../../GameLibrary/include/Services/SaveService.hpp"
+#include "../../GameLibrary/include/Systems/Logger.hpp"
 #include "Config/SnakeGameConfig.hpp"
 #include "Data/GameData.hpp"
-#include "Interfaces/ISceneManager.hpp"
 #include "Scene/SceneManager.hpp"
 #include "Scenes/GameScene.hpp"
 #include "Scenes/ResultScene.hpp"
 #include "Scenes/TitleScene.hpp"
-#include "Systems/Logger.hpp"
-#include "Systems/SaveSystem.hpp"
-#include "Systems/SoundSystem.hpp"
 
 namespace
 {
-    constexpr const char* ENGINE_CONFIG_PATH = "engine.yaml";
-    constexpr const char* SAVE_FILE_PATH = "savedata.dat";
-    constexpr const char* KEY_HIGH_SCORE = "highScore";
-    constexpr const char* KEY_BGM_VOLUME = "bgmVolume";
-    constexpr const char* KEY_SFX_VOLUME = "sfxVolume";
+    constexpr auto ENGINE_CONFIG_PATH = "engine.yaml";
+    constexpr auto SAVE_FILE_PATH = "savedata.dat";
+    constexpr auto KEY_HIGH_SCORE = "highScore";
+    constexpr auto KEY_BGM_VOLUME = "bgmVolume";
+    constexpr auto KEY_SFX_VOLUME = "sfxVolume";
 } // namespace
 
 int32_t Application::Run()
 {
-    GameLibrary::EngineConfig config{
+    const GameLibrary::EngineConfig config{
         .screenWidth = 800,
         .screenHeight = 800,
         .title = "Snake Game",
-        .fontPath = "fonts/arial.ttf",
         .configPath = ENGINE_CONFIG_PATH,
     };
 
@@ -41,11 +39,11 @@ int32_t Application::Run()
     container.Register<SnakeGame::SnakeGameConfig, SnakeGame::SnakeGameConfig>();
     container.Register<SnakeGame::GameData, SnakeGame::GameData>();
 
-    LoadSounds();
+    LoadResources();
     LoadGameData();
     RegisterScenes();
 
-    container.Resolve<GameLibrary::ISceneManager>()->LoadScene("Title");
+    container.Resolve<GameLibrary::SceneManager>()->LoadScene("Title");
     m_engine.Run();
 
     SaveGameData();
@@ -56,7 +54,7 @@ int32_t Application::Run()
 
 void Application::RegisterScenes()
 {
-    auto* sceneManager = m_engine.GetContainer().Resolve<GameLibrary::ISceneManager>();
+    auto* sceneManager = m_engine.GetContainer().Resolve<GameLibrary::SceneManager>();
 
     sceneManager->RegisterSceneFactory("Title", [](const std::string& name, GameLibrary::ServiceContainer& container)
                                        { return std::make_unique<TitleScene>(name, container); });
@@ -66,36 +64,46 @@ void Application::RegisterScenes()
                                        { return std::make_unique<ResultScene>(name, container); });
 }
 
-void Application::LoadSounds()
+void Application::LoadResources()
 {
-    auto* soundSystem = m_engine.GetContainer().Resolve<GameLibrary::SoundSystem>();
-    if (soundSystem)
+    auto* resourceService = m_engine.GetContainer().Resolve<GameLibrary::ResourceService>();
+    if (not resourceService)
     {
-        if (!soundSystem->Load("eat", "assets/sounds/eat.wav"))
-        {
-            GameLibrary::Logger::Warning("Failed to load sound: eat");
-        }
-        if (!soundSystem->Load("gameover", "assets/sounds/gameover.wav"))
-        {
-            GameLibrary::Logger::Warning("Failed to load sound: gameover");
-        }
-        if (!soundSystem->Load("coin", "assets/sounds/coin.wav"))
-        {
-            GameLibrary::Logger::Warning("Failed to load sound: coin");
-        }
+        GameLibrary::Logger::Error("Resource service not found");
+        return;
+    }
+
+    // 사운드 로드
+    if (not resourceService->LoadSound("eat", "assets/sounds/eat.wav"))
+    {
+        GameLibrary::Logger::Warning("Failed to load sound: eat");
+    }
+    if (not resourceService->LoadSound("gameover", "assets/sounds/gameover.wav"))
+    {
+        GameLibrary::Logger::Warning("Failed to load sound: gameover");
+    }
+    if (not resourceService->LoadSound("coin", "assets/sounds/coin.wav"))
+    {
+        GameLibrary::Logger::Warning("Failed to load sound: coin");
+    }
+
+    // 폰트 로드
+    if (not resourceService->LoadFont("main", "assets/fonts/NotoSans_Black.ttf"))
+    {
+        GameLibrary::Logger::Warning("Failed to load font: main");
     }
 }
 
 void Application::LoadGameData()
 {
     auto& container = m_engine.GetContainer();
-    auto* saveSystem = container.Resolve<GameLibrary::SaveSystem>();
-    auto* soundSystem = container.Resolve<GameLibrary::SoundSystem>();
+    auto* saveSystem = container.Resolve<GameLibrary::SaveService>();
+    auto* soundSystem = container.Resolve<GameLibrary::AudioService>();
     auto* gameData = container.Resolve<SnakeGame::GameData>();
 
-    if (saveSystem && gameData)
+    if (saveSystem and gameData)
     {
-        if (!saveSystem->LoadFromFile(SAVE_FILE_PATH))
+        if (not saveSystem->LoadFromFile(SAVE_FILE_PATH))
         {
             GameLibrary::Logger::Info("No save file found, using defaults");
         }
@@ -114,8 +122,8 @@ void Application::LoadGameData()
 void Application::SaveGameData()
 {
     auto& container = m_engine.GetContainer();
-    auto* saveSystem = container.Resolve<GameLibrary::SaveSystem>();
-    auto* soundSystem = container.Resolve<GameLibrary::SoundSystem>();
+    auto* saveSystem = container.Resolve<GameLibrary::SaveService>();
+    auto* soundSystem = container.Resolve<GameLibrary::AudioService>();
     auto* gameData = container.Resolve<SnakeGame::GameData>();
 
     if (saveSystem && gameData)

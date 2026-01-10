@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Interfaces/IInitializable.hpp"
-#include "Interfaces/ISceneManager.hpp"
 #include "Scene.hpp"
 
 #include <functional>
@@ -11,11 +10,11 @@
 
 namespace GameLibrary
 {
-    class SceneManager : public ISceneManager, public IInitializable
+    class SceneManager : public IInitializable
     {
     public:
         SceneManager() = default;
-        ~SceneManager() = default;
+        ~SceneManager() override = default;
 
         SceneManager(const SceneManager&) = delete;
         SceneManager(SceneManager&&) = default;
@@ -26,7 +25,7 @@ namespace GameLibrary
 
         void RegisterSceneFactory(
             const std::string& name,
-            std::function<std::unique_ptr<Scene>(const std::string&, ServiceContainer&)> factory) override
+            const std::function<std::unique_ptr<Scene>(const std::string&, ServiceContainer&)>& factory)
         {
             m_factories[name] = [this, factory, name]() -> std::unique_ptr<Scene>
             {
@@ -42,11 +41,11 @@ namespace GameLibrary
             };
         }
 
-        void LoadScene(const std::string& name) override;
-        [[nodiscard]] Scene* GetCurrentScene() const noexcept override;
+        void LoadScene(const std::string& name);
+        [[nodiscard]] Scene* GetCurrentScene() const noexcept;
 
-        void Update(float deltaTime) override;
-        void Render(IGraphics& graphics) override;
+        void Update(float deltaTime);
+        void Render(IGraphics& graphics) const;
 
     private:
         std::unordered_map<std::string, std::function<std::unique_ptr<Scene>()>> m_factories{};

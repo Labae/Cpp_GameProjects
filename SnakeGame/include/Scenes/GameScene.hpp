@@ -6,10 +6,10 @@
 
 namespace GameLibrary
 {
-    class FxSystem;
+    class FxService;
     class IInputProvider;
-    class SoundSystem;
-    class SaveSystem;
+    class AudioService;
+    class SaveService;
     struct EngineConfig;
 } // namespace GameLibrary
 
@@ -18,7 +18,7 @@ namespace SnakeGame
     struct GameData;
 }
 
-class GameScene : public GameLibrary::Scene
+class GameScene final : public GameLibrary::Scene
 {
 public:
     GameScene(const std::string& name, GameLibrary::ServiceContainer& container);
@@ -42,15 +42,15 @@ private:
     void UpdatePauseMenu();
     void UpdateSettings();
 
-    void RenderPauseMenu(GameLibrary::IGraphics& graphics);
-    void RenderSettings(GameLibrary::IGraphics& graphics);
+    void RenderPauseMenu(GameLibrary::IGraphics& graphics) const;
+    void RenderSettings(GameLibrary::IGraphics& graphics) const;
 
-    void SaveSettings();
+    void SaveSettings() const;
 
-    GameLibrary::FxSystem* m_fxSystem{};
+    GameLibrary::FxService* m_fxSystem{};
     GameLibrary::IInputProvider* m_input{};
-    GameLibrary::SoundSystem* m_soundSystem{};
-    GameLibrary::SaveSystem* m_saveSystem{};
+    GameLibrary::AudioService* m_audioService{};
+    GameLibrary::SaveService* m_saveSystem{};
     GameLibrary::EngineConfig* m_engineConfig{};
     SnakeGame::GameData* m_gameData{};
 

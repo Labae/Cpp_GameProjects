@@ -3,23 +3,21 @@
 #include "Core/EngineConfig.hpp"
 #include "Core/ServiceContainer.hpp"
 
-#include <memory>
-#include <string>
-
 namespace GameLibrary
 {
     class Window;
-    class EventSystem;
-    class SaveSystem;
-    class ConfigSystem;
-    class SoundSystem;
-    class FxSystem;
+    class EventService;
+    class SaveService;
+    class ConfigService;
+    class AudioService;
+    class FxService;
+    class ResourceService;
+    class PhysicsService;
+    class TimeService;
 
     class IGraphics;
     class IInputProvider;
-    class ITimeProvider;
-    class IPhysicsSystem;
-    class ISceneManager;
+    class SceneManager;
 
     class Engine
     {
@@ -37,7 +35,7 @@ namespace GameLibrary
         void Shutdown() noexcept;
         void Quit() noexcept { m_isRunning = false; }
 
-        void ReloadConfig();
+        void ReloadConfig() const;
 
         [[nodiscard]] bool IsRunning() const noexcept { return m_isRunning; }
         [[nodiscard]] ServiceContainer& GetContainer() noexcept { return m_container; }
@@ -48,26 +46,27 @@ namespace GameLibrary
 
         template <typename T> [[nodiscard]] T* TryInitialize();
 
-        void Update();
-        void Render();
-        void ProcessGlobalInput();
+        void Update() const;
+        void Render() const;
+        void ProcessGlobalInput() const;
 
         bool m_isRunning = false;
         EngineConfig m_config{};
         ServiceContainer m_container{};
 
-        ConfigSystem* m_configSystem{};
         Window* m_window{};
 
         IGraphics* m_graphics{};
         IInputProvider* m_inputProvider{};
-        ITimeProvider* m_timeProvider{};
-        IPhysicsSystem* m_physicsSystem{};
-        ISceneManager* m_sceneManager{};
 
-        EventSystem* m_eventSystem{};
-        SaveSystem* m_saveSystem{};
-        SoundSystem* m_soundSystem{};
-        FxSystem* m_fxSystem{};
+        ConfigService* m_configService{};
+        TimeService* m_timeService{};
+        PhysicsService* m_physicsService{};
+        SceneManager* m_sceneManager{};
+        EventService* m_eventService{};
+        SaveService* m_saveService{};
+        AudioService* m_soundService{};
+        FxService* m_fxService{};
+        ResourceService* m_resourceService{};
     };
 } // namespace GameLibrary

@@ -8,18 +8,19 @@
 #include "Fx/ParticleFx.hpp"
 #include "Fx/ShakeFx.hpp"
 #include "Interfaces/IGraphics.hpp"
-#include "Interfaces/IInputProvider.hpp"
-#include "Interfaces/ISceneManager.hpp"
-#include "Systems/FxSystem.hpp"
-#include "Systems/SoundSystem.hpp"
+#include "Scene/SceneManager.hpp"
+#include "Services/AudioService.hpp"
+#include "Services/FxService.hpp"
 
 #include <format>
 
-GameManager::GameManager(GameLibrary::EventSystem& eventSystem, GameLibrary::IInputProvider& input,
-                         GameLibrary::ISceneManager& sceneManager, GameLibrary::SoundSystem& soundSystem,
-                         GameLibrary::EngineConfig& engineConfig, SnakeGame::SnakeGameConfig& gameConfig,
-                         SnakeGame::GameData& gameData, GameLibrary::FxSystem& fxSystem)
-    : m_eventSystem(eventSystem)
+GameManager::GameManager(GameLibrary::Actor* owner, GameLibrary::EventService& eventSystem,
+                         GameLibrary::IInputProvider& input, GameLibrary::SceneManager& sceneManager,
+                         GameLibrary::AudioService& soundSystem, GameLibrary::EngineConfig& engineConfig,
+                         const SnakeGame::SnakeGameConfig& gameConfig, SnakeGame::GameData& gameData,
+                         GameLibrary::FxService& fxSystem)
+    : Component(owner)
+    , m_eventSystem(eventSystem)
     , m_input(input)
     , m_sceneManager(sceneManager)
     , m_soundSystem(soundSystem)
@@ -41,7 +42,7 @@ void GameManager::Init()
     m_gameOverToken = m_eventSystem.Subscribe<GameOverEvent>([this](const GameOverEvent& event) { OnGameOver(event); });
 }
 
-void GameManager::Update(float deltaTime)
+void GameManager::Update(const float deltaTime)
 {
     if (!m_isGameOver)
     {

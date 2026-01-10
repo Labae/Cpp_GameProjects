@@ -1,14 +1,14 @@
 #pragma once
 
-#include "GameObject/Component.hpp"
+#include "../../../GameLibrary/include/Actor/Component.hpp"
 #include "Interfaces/IGraphics.hpp"
 
 #include <SFML/Graphics/Color.hpp>
 
-class GridBackground : public GameLibrary::Component
+class GridBackground final : public GameLibrary::Component
 {
 public:
-    GridBackground(int32_t screenWidth, int32_t screenHeight, int32_t gridSize,
+    GridBackground(GameLibrary::Actor* owner, int32_t screenWidth, int32_t screenHeight, int32_t gridSize,
                    const sf::Color& lineColor = sf::Color(40, 40, 40, 255));
 
     void Render(GameLibrary::IGraphics& graphics) override;

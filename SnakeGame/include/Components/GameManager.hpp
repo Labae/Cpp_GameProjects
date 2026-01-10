@@ -1,16 +1,16 @@
 #pragma once
 
-#include "GameObject/Component.hpp"
-#include "Systems/EventSystem.hpp"
+#include "../../../GameLibrary/include/Actor/Component.hpp"
+#include "../../../GameLibrary/include/Services/EventService.hpp"
 
 namespace GameLibrary
 {
     class IInputProvider;
-    class ISceneManager;
     class IGraphics;
-    class SoundSystem;
-    class FxSystem;
+    class AudioService;
+    class FxService;
     struct EngineConfig;
+    class SceneManager;
 } // namespace GameLibrary
 
 namespace SnakeGame
@@ -19,13 +19,15 @@ namespace SnakeGame
     struct GameData;
 } // namespace SnakeGame
 
-class GameManager : public GameLibrary::Component
+class GameManager final : public GameLibrary::Component
 {
 public:
-    GameManager(GameLibrary::EventSystem& eventSystem, GameLibrary::IInputProvider& input,
-                GameLibrary::ISceneManager& sceneManager, GameLibrary::SoundSystem& soundSystem,
-                GameLibrary::EngineConfig& engineConfig, SnakeGame::SnakeGameConfig& gameConfig,
-                SnakeGame::GameData& gameData, GameLibrary::FxSystem& fxSystem);
+    GameManager(
+        GameLibrary::Actor* owner,
+        GameLibrary::EventService& eventSystem, GameLibrary::IInputProvider& input,
+                GameLibrary::SceneManager& sceneManager, GameLibrary::AudioService& soundSystem,
+                GameLibrary::EngineConfig& engineConfig, const SnakeGame::SnakeGameConfig& gameConfig,
+                SnakeGame::GameData& gameData, GameLibrary::FxService& fxSystem);
 
     void Init() override;
     void Update(float deltaTime) override;
@@ -38,13 +40,13 @@ private:
     void OnGoldenFoodEaten(const struct GoldenFoodEatenEvent& event);
     void OnGameOver(const struct GameOverEvent& event);
 
-    GameLibrary::EventSystem& m_eventSystem;
+    GameLibrary::EventService& m_eventSystem;
     GameLibrary::IInputProvider& m_input;
-    GameLibrary::ISceneManager& m_sceneManager;
-    GameLibrary::SoundSystem& m_soundSystem;
+    GameLibrary::SceneManager& m_sceneManager;
+    GameLibrary::AudioService& m_soundSystem;
     GameLibrary::EngineConfig& m_engineConfig;
     SnakeGame::GameData& m_gameData;
-    GameLibrary::FxSystem& m_fxSystem;
+    GameLibrary::FxService& m_fxSystem;
 
     GameLibrary::SubscriptionToken m_goldenFoodEatenToken{};
     GameLibrary::SubscriptionToken m_foodEatenToken{};

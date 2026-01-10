@@ -1,7 +1,10 @@
 #include "Components/GridBackground.hpp"
 
-GridBackground::GridBackground(int32_t screenWidth, int32_t screenHeight, int32_t gridSize, const sf::Color& lineColor)
-    : m_screenWidth(screenWidth)
+GridBackground::GridBackground(GameLibrary::Actor* owner, const int32_t screenWidth, const int32_t screenHeight,
+                               const int32_t gridSize,
+                               const sf::Color& lineColor)
+    : Component(owner)
+    , m_screenWidth(screenWidth)
     , m_screenHeight(screenHeight)
     , m_gridSize(gridSize)
     , m_lineColor(lineColor)

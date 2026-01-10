@@ -1,5 +1,6 @@
 #include "Components/SnakeController.hpp"
 
+#include "Actor/Actor.hpp"
 #include "Config/SnakeGameConfig.hpp"
 #include "Core/EngineConfig.hpp"
 #include "Events/GameEvents.hpp"
@@ -8,10 +9,10 @@
 
 #include <algorithm>
 
-SnakeController::SnakeController(GameLibrary::Transform& transform, GameLibrary::IInputProvider& input,
-                                 GameLibrary::EventSystem& eventSystem, const GameLibrary::EngineConfig& engineConfig,
+SnakeController::SnakeController(GameLibrary::Actor* owner, GameLibrary::IInputProvider& input,
+                                 GameLibrary::EventService& eventSystem, const GameLibrary::EngineConfig& engineConfig,
                                  const SnakeGame::SnakeGameConfig& gameConfig)
-    : m_transform(transform)
+    : Component(owner)
     , m_input(input)
     , m_eventSystem(eventSystem)
     , m_engineConfig(engineConfig)
@@ -25,7 +26,7 @@ void SnakeController::Init()
                                                              { m_isGameOver = true; });
 }
 
-void SnakeController::Update(float deltaTime)
+void SnakeController::Update(const float deltaTime)
 {
     if (m_isGameOver)
     {
@@ -54,10 +55,12 @@ void SnakeController::Update(float deltaTime)
     {
         m_moveTimer = 0.0f;
 
-        m_body.insert(m_body.begin(), m_transform.position);
+        auto& transform = m_owner->GetTransform();
 
-        m_transform.position.x += m_direction.x * static_cast<float>(m_gameConfig.gridSize);
-        m_transform.position.y += m_direction.y * static_cast<float>(m_gameConfig.gridSize);
+        m_body.insert(m_body.begin(), transform.position);
+
+        transform.position.x += m_direction.x * static_cast<float>(m_gameConfig.gridSize);
+        transform.position.y += m_direction.y * static_cast<float>(m_gameConfig.gridSize);
 
         if (CheckCollision())
         {
@@ -74,16 +77,17 @@ void SnakeController::Update(float deltaTime)
             m_body.pop_back();
         }
 
-        m_eventSystem.Publish(SnakeMovedEvent{m_transform.position});
+        m_eventSystem.Publish(SnakeMovedEvent{transform.position});
     }
 }
 
 void SnakeController::Render(GameLibrary::IGraphics& graphics)
 {
     const auto totalSegmentCount = static_cast<int32_t>(m_body.size()) + 1;
+    const auto& transform = m_owner->GetTransform();
 
     // 머리 그리기
-    graphics.FillRect(static_cast<int32_t>(m_transform.position.x), static_cast<int32_t>(m_transform.position.y),
+    graphics.FillRect(static_cast<int32_t>(transform.position.x), static_cast<int32_t>(transform.position.y),
                       m_gameConfig.gridSize, m_gameConfig.gridSize, m_gameConfig.headColor);
 
     // 몸통 그리기 (그라데이션)
@@ -110,7 +114,7 @@ void SnakeController::Render(GameLibrary::IGraphics& graphics)
     }
 }
 
-void SnakeController::OnCollision([[maybe_unused]] GameLibrary::ICollidable* other)
+void SnakeController::OnCollision([[maybe_unused]] GameLibrary::Actor* other)
 {
     if (m_isGameOver)
     {
@@ -122,9 +126,10 @@ void SnakeController::OnCollision([[maybe_unused]] GameLibrary::ICollidable* oth
 
 bool SnakeController::CheckCollision() const
 {
+    const auto& transform = m_owner->GetTransform();
     // 벽 충돌
-    if (m_transform.position.x < 0 || m_transform.position.x >= static_cast<float>(m_engineConfig.screenWidth) ||
-        m_transform.position.y < 0 || m_transform.position.y >= static_cast<float>(m_engineConfig.screenHeight))
+    if (transform.position.x < 0 || transform.position.x >= static_cast<float>(m_engineConfig.screenWidth) ||
+        transform.position.y < 0 || transform.position.y >= static_cast<float>(m_engineConfig.screenHeight))
     {
         return true;
     }
@@ -132,7 +137,7 @@ bool SnakeController::CheckCollision() const
     // 자기 몸 충돌
     for (const auto& segment : m_body)
     {
-        if (m_transform.position == segment)
+        if (transform.position == segment)
         {
             return true;
         }

@@ -1,29 +1,26 @@
 #pragma once
 
-#include "GameObject/Component.hpp"
-#include "GameObject/Transform.hpp"
-#include "Systems/EventSystem.hpp"
+#include "../../../GameLibrary/include/Actor/Component.hpp"
+#include "../../../GameLibrary/include/Services/EventService.hpp"
 
 namespace GameLibrary
 {
     class IGraphics;
     class ICollidable;
-    class EventSystem;
+    class EventService;
+    class Actor;
 } // namespace GameLibrary
 
-class Pickup : public GameLibrary::Component
+class Pickup final : public GameLibrary::Component
 {
 public:
-    Pickup(GameLibrary::Transform& transform, GameLibrary::EventSystem& eventSystem, int32_t gridSize);
+    Pickup(GameLibrary::Actor* owner, GameLibrary::EventService& eventSystem, int32_t gridSize);
 
     void Render(GameLibrary::IGraphics& graphics) override;
 
-    void OnCollision(GameLibrary::ICollidable* other);
-
-    [[nodiscard]] GameLibrary::Transform& GetTransform() const noexcept { return m_transform; }
+    void OnCollision(GameLibrary::Actor* other) const;
 
 private:
-    GameLibrary::Transform& m_transform;
-    GameLibrary::EventSystem& m_eventSystem;
+    GameLibrary::EventService& m_eventSystem;
     int32_t m_gridSize{};
 };

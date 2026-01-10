@@ -44,29 +44,26 @@ namespace GameLibrary
 
         template <typename TInterface> void RegisterInstance(std::shared_ptr<TInterface> instance)
         {
-            auto key = std::type_index(typeid(TInterface));
+            const auto key = std::type_index(typeid(TInterface));
             m_singletonInstances[key] = instance;
         }
 
         template <typename TInterface> [[nodiscard]] TInterface* Resolve()
         {
-            auto key = std::type_index(typeid(TInterface));
+            const auto key = std::type_index(typeid(TInterface));
 
-            auto instanceIt = m_singletonInstances.find(key);
-            if (instanceIt != m_singletonInstances.end())
+            if (const auto instanceIt = m_singletonInstances.find(key); instanceIt != m_singletonInstances.end())
             {
                 return static_cast<TInterface*>(instanceIt->second.get());
             }
 
-            auto it = m_descriptors.find(key);
+            const auto it = m_descriptors.find(key);
             if (it == m_descriptors.end())
             {
                 return nullptr;
             }
 
-            auto& descriptor = it->second;
-
-            switch (descriptor.lifetime)
+            switch (const auto& descriptor = it->second; descriptor.lifetime)
             {
             case ServiceLifetime::Singleton:
                 return ResolveSingleton<TInterface>(key, descriptor.creator);
@@ -81,8 +78,7 @@ namespace GameLibrary
 
         void TryInit(std::type_index key, void* service)
         {
-            auto it = m_descriptors.find(key);
-            if (it != m_descriptors.end() && it->second.initializer)
+            if (const auto it = m_descriptors.find(key); it != m_descriptors.end() && it->second.initializer)
             {
                 it->second.initializer(service, *this);
             }
@@ -103,8 +99,7 @@ namespace GameLibrary
         template <typename TInterface>
         [[nodiscard]] TInterface* ResolveSingleton(std::type_index key, const Creator& creator)
         {
-            auto it = m_singletonInstances.find(key);
-            if (it == m_singletonInstances.end())
+            if (const auto it = m_singletonInstances.find(key); it == m_singletonInstances.end())
             {
                 m_singletonInstances[key] = creator();
             }
@@ -114,8 +109,7 @@ namespace GameLibrary
         template <typename TInterface>
         [[nodiscard]] TInterface* ResolveScoped(std::type_index key, const Creator& creator)
         {
-            auto it = m_scopedInstances.find(key);
-            if (it == m_scopedInstances.end())
+            if (const auto it = m_scopedInstances.find(key); it == m_scopedInstances.end())
             {
                 m_scopedInstances[key] = creator();
             }

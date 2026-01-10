@@ -1,32 +1,32 @@
 #pragma once
 
-#include "GameObject/Component.hpp"
-#include "GameObject/Transform.hpp"
-#include "Systems/EventSystem.hpp"
+#include "../../../GameLibrary/include/Actor/Component.hpp"
+#include "../../../GameLibrary/include/Actor/Transform.hpp"
+#include "../../../GameLibrary/include/Services/EventService.hpp"
 
 namespace GameLibrary
 {
     class IGraphics;
     class ICollidable;
+    class Actor;
 } // namespace GameLibrary
 
-class GoldenPickup : public GameLibrary::Component
+class GoldenPickup final : public GameLibrary::Component
 {
 public:
-    GoldenPickup(GameLibrary::Transform& transform, GameLibrary::EventSystem& eventSystem, int32_t gridSize,
+    GoldenPickup(GameLibrary::Actor* owner, GameLibrary::EventService& eventSystem, int32_t gridSize,
                  float lifeTime = 3.0f);
 
     void Update(float deltaTime) override;
     void Render(GameLibrary::IGraphics& graphics) override;
 
-    void OnCollision(GameLibrary::ICollidable* other);
+    void OnCollision(GameLibrary::Actor* other);
 
     [[nodiscard]] bool IsExpired() const noexcept { return m_elapsedTime >= m_lifeTime; }
     [[nodiscard]] bool IsEaten() const noexcept { return m_isEaten; }
 
 private:
-    GameLibrary::Transform& m_transform;
-    GameLibrary::EventSystem& m_eventSystem;
+    GameLibrary::EventService& m_eventSystem;
 
     int32_t m_gridSize{};
     float m_lifeTime{};

@@ -1,30 +1,27 @@
 #include "Scenes/GameScene.hpp"
 
+#include "../../../GameLibrary/include/Actor/BoxCollider.hpp"
 #include "Components/FoodSpawner.hpp"
 #include "Components/GameManager.hpp"
-#include "Components/GoldenPickup.hpp"
 #include "Components/GridBackground.hpp"
-#include "Components/Pickup.hpp"
 #include "Components/SnakeController.hpp"
 #include "Config/SnakeGameConfig.hpp"
 #include "Core/EngineConfig.hpp"
 #include "Core/ServiceContainer.hpp"
 #include "Data/GameData.hpp"
-#include "GameObject/BoxCollider.hpp"
-#include "GameObject/GameObject.hpp"
 #include "Interfaces/IInputProvider.hpp"
-#include "Interfaces/IPhysicsSystem.hpp"
-#include "Interfaces/ISceneManager.hpp"
-#include "Systems/ConfigSystem.hpp"
-#include "Systems/EventSystem.hpp"
-#include "Systems/FxSystem.hpp"
+#include "Scene/SceneManager.hpp"
+#include "Services/AudioService.hpp"
+#include "Services/ConfigService.hpp"
+#include "Services/EventService.hpp"
+#include "Services/FxService.hpp"
+#include "Services/PhysicsService.hpp"
+#include "Services/SaveService.hpp"
 #include "Systems/Logger.hpp"
-#include "Systems/SaveSystem.hpp"
-#include "Systems/SoundSystem.hpp"
 
 namespace
 {
-    constexpr const char* GAME_CONFIG_PATH = "game.yaml";
+    constexpr auto GAME_CONFIG_PATH = "game.yaml";
 }
 
 GameScene::GameScene(const std::string& name, GameLibrary::ServiceContainer& container) : Scene(name, container) {}
@@ -36,36 +33,38 @@ void GameScene::OnEnter()
     m_settingsIndex = 0;
 
     auto& container = GetContainer();
-    m_fxSystem = container.Resolve<GameLibrary::FxSystem>();
+    m_fxSystem = container.Resolve<GameLibrary::FxService>();
     m_input = container.Resolve<GameLibrary::IInputProvider>();
     m_engineConfig = container.Resolve<GameLibrary::EngineConfig>();
-    m_soundSystem = container.Resolve<GameLibrary::SoundSystem>();
-    m_saveSystem = container.Resolve<GameLibrary::SaveSystem>();
+    m_audioService = container.Resolve<GameLibrary::AudioService>();
+    m_saveSystem = container.Resolve<GameLibrary::SaveService>();
     m_gameData = container.Resolve<SnakeGame::GameData>();
 
-    if (m_soundSystem && m_gameData)
+    if (m_audioService && m_gameData)
     {
-        m_soundSystem->SetBGMVolume(m_gameData->bgmVolume);
-        m_soundSystem->SetSFXVolume(m_gameData->sfxVolume);
+        m_audioService->SetBGMVolume(m_gameData->bgmVolume);
+        m_audioService->SetSFXVolume(m_gameData->sfxVolume);
     }
 
     ApplyConfig();
     SetupGame();
 
-    if (m_soundSystem)
+    if (m_audioService)
     {
-        if (!m_soundSystem->PlayBGM("assets/sounds/background.wav"))
+        if (not m_audioService->PlayBGM("assets/sounds/background.wav"))
         {
             GameLibrary::Logger::Warning("Failed to load BGM: background");
         }
+
+        GameLibrary::Logger::Info("BGM loaded + " + std::to_string(m_audioService->GetBGMVolume()));
     }
 }
 
 void GameScene::OnExit()
 {
-    if (m_soundSystem)
+    if (m_audioService)
     {
-        m_soundSystem->StopBGM();
+        m_audioService->StopBGM();
     }
 
     Clear();
@@ -122,18 +121,25 @@ void GameScene::UpdatePauseMenu()
         switch (m_menuIndex)
         {
         case 0: // Resume
+        {
             m_pauseState = PauseState::None;
             break;
+        }
         case 1: // Settings
+        {
             m_pauseState = PauseState::Settings;
             m_settingsIndex = 0;
             break;
+        }
         case 2: // Quit
-            if (auto* sceneManager = GetContainer().Resolve<GameLibrary::ISceneManager>())
+        {
+            if (auto* sceneManager = GetContainer().Resolve<GameLibrary::SceneManager>())
             {
                 sceneManager->LoadScene("Title");
             }
             break;
+        }
+        default:;
         }
     }
     if (m_input->IsKeyPressed(GameLibrary::KeyCode::Escape))
@@ -158,30 +164,30 @@ void GameScene::UpdateSettings()
 
     if (m_input->IsKeyPressed(GameLibrary::KeyCode::Left))
     {
-        if (m_soundSystem)
+        if (m_audioService)
         {
             if (m_settingsIndex == 0)
             {
-                m_soundSystem->SetBGMVolume(m_soundSystem->GetBGMVolume() - delta);
+                m_audioService->SetBGMVolume(m_audioService->GetBGMVolume() - delta);
             }
             else
             {
-                m_soundSystem->SetSFXVolume(m_soundSystem->GetSFXVolume() - delta);
+                m_audioService->SetSFXVolume(m_audioService->GetSFXVolume() - delta);
             }
             changed = true;
         }
     }
     if (m_input->IsKeyPressed(GameLibrary::KeyCode::Right))
     {
-        if (m_soundSystem)
+        if (m_audioService)
         {
             if (m_settingsIndex == 0)
             {
-                m_soundSystem->SetBGMVolume(m_soundSystem->GetBGMVolume() + delta);
+                m_audioService->SetBGMVolume(m_audioService->GetBGMVolume() + delta);
             }
             else
             {
-                m_soundSystem->SetSFXVolume(m_soundSystem->GetSFXVolume() + delta);
+                m_audioService->SetSFXVolume(m_audioService->GetSFXVolume() + delta);
             }
             changed = true;
         }
@@ -198,15 +204,15 @@ void GameScene::UpdateSettings()
     }
 }
 
-void GameScene::SaveSettings()
+void GameScene::SaveSettings() const
 {
-    if (!m_gameData || !m_soundSystem || !m_saveSystem)
+    if (!m_gameData || !m_audioService || !m_saveSystem)
     {
         return;
     }
 
-    m_gameData->bgmVolume = m_soundSystem->GetBGMVolume();
-    m_gameData->sfxVolume = m_soundSystem->GetSFXVolume();
+    m_gameData->bgmVolume = m_audioService->GetBGMVolume();
+    m_gameData->sfxVolume = m_audioService->GetSFXVolume();
 
     m_saveSystem->SetInt("highScore", m_gameData->highScore);
     m_saveSystem->SetFloat("bgmVolume", m_gameData->bgmVolume);
@@ -248,7 +254,7 @@ void GameScene::Render(GameLibrary::IGraphics& graphics)
     }
 }
 
-void GameScene::RenderPauseMenu(GameLibrary::IGraphics& graphics)
+void GameScene::RenderPauseMenu(GameLibrary::IGraphics& graphics) const
 {
     if (!m_engineConfig)
     {
@@ -275,15 +281,15 @@ void GameScene::RenderPauseMenu(GameLibrary::IGraphics& graphics)
                        GameLibrary::TextAlign::Center);
 
     // 메뉴 항목
-    const char* items[] = {"Resume", "Settings", "Quit"};
     for (int32_t i = 0; i < 3; ++i)
     {
+        const char* items[] = {"Resume", "Settings", "Quit"};
         const sf::Color color = (i == m_menuIndex) ? sf::Color(255, 255, 0, 255) : sf::Color(180, 180, 180, 255);
         graphics.DrawLabel(items[i], boxX + boxW / 2, boxY + 70 + i * 35, 24, color, GameLibrary::TextAlign::Center);
     }
 }
 
-void GameScene::RenderSettings(GameLibrary::IGraphics& graphics)
+void GameScene::RenderSettings(GameLibrary::IGraphics& graphics) const
 {
     if (!m_engineConfig)
     {
@@ -310,8 +316,8 @@ void GameScene::RenderSettings(GameLibrary::IGraphics& graphics)
                        GameLibrary::TextAlign::Center);
 
     // 볼륨 바
-    const float bgmVol = m_soundSystem ? m_soundSystem->GetBGMVolume() : 1.0f;
-    const float sfxVol = m_soundSystem ? m_soundSystem->GetSFXVolume() : 1.0f;
+    const float bgmVol = m_audioService ? m_audioService->GetBGMVolume() : 1.0f;
+    const float sfxVol = m_audioService ? m_audioService->GetSFXVolume() : 1.0f;
 
     const int32_t barX = boxX + 150;
     constexpr int32_t barW = 150;
@@ -337,7 +343,7 @@ void GameScene::RenderSettings(GameLibrary::IGraphics& graphics)
 void GameScene::ApplyConfig()
 {
     auto& container = GetContainer();
-    auto* configSystem = container.Resolve<GameLibrary::ConfigSystem>();
+    auto* configSystem = container.Resolve<GameLibrary::ConfigService>();
     auto* gameConfig = container.Resolve<SnakeGame::SnakeGameConfig>();
 
     if (configSystem && gameConfig)
@@ -361,33 +367,33 @@ void GameScene::SetupGame()
     auto* gameConfig = container.Resolve<SnakeGame::SnakeGameConfig>();
     auto* gameData = container.Resolve<SnakeGame::GameData>();
     auto* input = container.Resolve<GameLibrary::IInputProvider>();
-    auto* sceneManager = container.Resolve<GameLibrary::ISceneManager>();
-    auto* eventSystem = container.Resolve<GameLibrary::EventSystem>();
-    auto* soundSystem = container.Resolve<GameLibrary::SoundSystem>();
-    auto* physicsSystem = container.Resolve<GameLibrary::IPhysicsSystem>();
+    auto* sceneManager = container.Resolve<GameLibrary::SceneManager>();
+    auto* eventSystem = container.Resolve<GameLibrary::EventService>();
+    auto* soundSystem = container.Resolve<GameLibrary::AudioService>();
+    auto* physicsSystem = container.Resolve<GameLibrary::PhysicsService>();
 
     // GridBackground
-    auto* grid = CreateGameObject();
+    auto* grid = CreateActor();
     grid->AddComponent<GridBackground>(engineConfig->screenWidth, engineConfig->screenHeight, gameConfig->gridSize);
 
     // GameManager
-    auto* manager = CreateGameObject();
+    auto* manager = CreateActor();
     manager->AddComponent<GameManager>(*eventSystem, *input, *sceneManager, *soundSystem, *engineConfig, *gameConfig,
                                        *gameData, *m_fxSystem);
 
     // Snake
-    auto* snake = CreateGameObject();
+    auto* snake = CreateActor();
     snake->GetTransform().position = {
         static_cast<float>((engineConfig->screenWidth / 2 / gameConfig->gridSize) * gameConfig->gridSize),
         static_cast<float>((engineConfig->screenHeight / 2 / gameConfig->gridSize) * gameConfig->gridSize)};
     auto* snakeController =
-        snake->AddComponent<SnakeController>(snake->GetTransform(), *input, *eventSystem, *engineConfig, *gameConfig);
+        snake->AddComponent<SnakeController>(*input, *eventSystem, *engineConfig, *gameConfig);
 
     snake->AddComponent<GameLibrary::BoxCollider>(
-        snake->GetTransform(), *physicsSystem, gameConfig->gridSize, gameConfig->gridSize,
-        [snakeController](GameLibrary::ICollidable* other) { snakeController->OnCollision(other); });
+       *physicsSystem, gameConfig->gridSize, gameConfig->gridSize,
+        [snakeController](GameLibrary::Actor* other) { snakeController->OnCollision(other); });
 
     // FoodSpawner
-    auto* spawner = CreateGameObject();
+    auto* spawner = CreateActor();
     spawner->AddComponent<FoodSpawner>(*this, *eventSystem, *engineConfig, *gameConfig);
 }

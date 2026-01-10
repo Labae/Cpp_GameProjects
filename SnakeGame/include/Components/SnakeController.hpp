@@ -1,8 +1,7 @@
 #pragma once
 
-#include "GameObject/Component.hpp"
-#include "GameObject/Transform.hpp"
-#include "Systems/EventSystem.hpp"
+#include "Actor/Component.hpp"
+#include "Services/EventService.hpp"
 
 #include <SFML/System/Vector2.hpp>
 #include <vector>
@@ -20,25 +19,24 @@ namespace SnakeGame
     struct SnakeGameConfig;
 }
 
-class SnakeController : public GameLibrary::Component
+class SnakeController final : public GameLibrary::Component
 {
 public:
-    SnakeController(GameLibrary::Transform& transform, GameLibrary::IInputProvider& input,
-                    GameLibrary::EventSystem& eventSystem, const GameLibrary::EngineConfig& engineConfig,
+    SnakeController(GameLibrary::Actor* owner, GameLibrary::IInputProvider& input,
+                    GameLibrary::EventService& eventSystem, const GameLibrary::EngineConfig& engineConfig,
                     const SnakeGame::SnakeGameConfig& gameConfig);
 
     void Init() override;
     void Update(float deltaTime) override;
     void Render(GameLibrary::IGraphics& graphics) override;
 
-    void OnCollision(GameLibrary::ICollidable* other);
+    void OnCollision(GameLibrary::Actor* other);
 
 private:
     [[nodiscard]] bool CheckCollision() const;
 
-    GameLibrary::Transform& m_transform;
     GameLibrary::IInputProvider& m_input;
-    GameLibrary::EventSystem& m_eventSystem;
+    GameLibrary::EventService& m_eventSystem;
     const GameLibrary::EngineConfig& m_engineConfig;
     const SnakeGame::SnakeGameConfig& m_gameConfig;
 

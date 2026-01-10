@@ -4,7 +4,7 @@
 #include "Core/ServiceContainer.hpp"
 #include "Interfaces/IGraphics.hpp"
 #include "Interfaces/IInputProvider.hpp"
-#include "Interfaces/ISceneManager.hpp"
+#include "Scene/SceneManager.hpp"
 
 TitleScene::TitleScene(const std::string& name, GameLibrary::ServiceContainer& container) : Scene(name, container) {}
 
@@ -12,11 +12,11 @@ void TitleScene::OnEnter()
 {
     auto& container = GetContainer();
     m_input = container.Resolve<GameLibrary::IInputProvider>();
-    m_sceneManager = container.Resolve<GameLibrary::ISceneManager>();
+    m_sceneManager = container.Resolve<GameLibrary::SceneManager>();
     m_engineConfig = container.Resolve<GameLibrary::EngineConfig>();
 }
 
-void TitleScene::Update(float deltaTime)
+void TitleScene::Update(const float deltaTime)
 {
     m_blinkTimer += deltaTime;
     if (m_blinkTimer >= 0.5f)

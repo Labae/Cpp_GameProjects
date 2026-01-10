@@ -1,9 +1,9 @@
 #include "Platform/Window.hpp"
 
+#include "../../include/Systems/Logger.hpp"
 #include "Core/EngineConfig.hpp"
 #include "Core/ServiceContainer.hpp"
 #include "Interfaces/IInputProvider.hpp"
-#include "Systems/Logger.hpp"
 
 namespace GameLibrary
 {
@@ -47,15 +47,7 @@ namespace GameLibrary
             {
                 if (const auto* keyPressed = event->getIf<sf::Event::KeyPressed>())
                 {
-                    Logger::Info("Key pressed event received!");
-                    if (m_inputProvider)
-                    {
-                        m_inputProvider->OnKeyPressed(keyPressed->scancode);
-                    }
-                    else
-                    {
-                        Logger::Error("m_inputProvider is nullptr!");
-                    }
+                    m_inputProvider->OnKeyPressed(keyPressed->scancode);
                 }
                 if (const auto* keyReleased = event->getIf<sf::Event::KeyReleased>())
                 {

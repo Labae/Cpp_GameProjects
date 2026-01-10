@@ -5,7 +5,7 @@
 namespace GameLibrary
 {
     class IInputProvider;
-    class ISceneManager;
+    class SceneManager;
     struct EngineConfig;
 } // namespace GameLibrary
 
@@ -14,7 +14,7 @@ namespace SnakeGame
     struct GameData;
 }
 
-class ResultScene : public GameLibrary::Scene
+class ResultScene final : public GameLibrary::Scene
 {
 public:
     ResultScene(const std::string& name, GameLibrary::ServiceContainer& container);
@@ -25,7 +25,7 @@ public:
 
 private:
     GameLibrary::IInputProvider* m_input{};
-    GameLibrary::ISceneManager* m_sceneManager{};
+    GameLibrary::SceneManager* m_sceneManager{};
     const GameLibrary::EngineConfig* m_engineConfig{};
     SnakeGame::GameData* m_gameData{};
 

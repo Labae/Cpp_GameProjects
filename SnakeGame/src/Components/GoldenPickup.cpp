@@ -1,11 +1,12 @@
 #include "Components/GoldenPickup.hpp"
 
+#include "Actor/Actor.hpp"
 #include "Events/GameEvents.hpp"
 #include "Interfaces/IGraphics.hpp"
 
-GoldenPickup::GoldenPickup(GameLibrary::Transform& transform, GameLibrary::EventSystem& eventSystem, int32_t gridSize,
-                           float lifeTime)
-    : m_transform(transform)
+GoldenPickup::GoldenPickup(GameLibrary::Actor* owner, GameLibrary::EventService& eventSystem, const int32_t gridSize,
+                           const float lifeTime)
+    : Component(owner)
     , m_eventSystem(eventSystem)
     , m_gridSize(gridSize)
     , m_lifeTime(lifeTime)
@@ -40,12 +41,13 @@ void GoldenPickup::Render(GameLibrary::IGraphics& graphics)
 
     if (isVisible)
     {
-        graphics.FillRect(static_cast<int32_t>(m_transform.position.x), static_cast<int32_t>(m_transform.position.y),
+        const auto& transform = m_owner->GetTransform();
+        graphics.FillRect(static_cast<int32_t>(transform.position.x), static_cast<int32_t>(transform.position.y),
                           m_gridSize, m_gridSize, sf::Color(255, 200, 0, 255));
     }
 }
 
-void GoldenPickup::OnCollision([[maybe_unused]]GameLibrary::ICollidable* other)
+void GoldenPickup::OnCollision([[maybe_unused]] GameLibrary::Actor* other)
 {
     if (m_isEaten || IsExpired())
     {
@@ -54,7 +56,9 @@ void GoldenPickup::OnCollision([[maybe_unused]]GameLibrary::ICollidable* other)
 
     m_isEaten = true;
 
-    const float centerX = m_transform.position.x + static_cast<float>(m_gridSize) * 0.5f;
-    const float centerY = m_transform.position.y + static_cast<float>(m_gridSize) * 0.5f;
+    const auto& transform = m_owner->GetTransform();
+
+    const float centerX = transform.position.x + static_cast<float>(m_gridSize) * 0.5f;
+    const float centerY = transform.position.y + static_cast<float>(m_gridSize) * 0.5f;
     m_eventSystem.Publish(GoldenFoodEatenEvent{centerX, centerY});
 }
