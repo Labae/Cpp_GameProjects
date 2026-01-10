@@ -1,6 +1,6 @@
-#include "../../include/Services/AudioService.hpp"
+#include "Services/AudioService.hpp"
 
-#include "../../include/Systems/Logger.hpp"
+#include "Systems/Logger.hpp"
 #include "Core/ServiceContainer.hpp"
 
 namespace GameLibrary

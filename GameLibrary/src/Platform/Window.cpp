@@ -1,6 +1,6 @@
 #include "Platform/Window.hpp"
 
-#include "../../include/Systems/Logger.hpp"
+#include "Systems/Logger.hpp"
 #include "Core/EngineConfig.hpp"
 #include "Core/ServiceContainer.hpp"
 #include "Interfaces/IInputProvider.hpp"

@@ -9,12 +9,11 @@
 
 #include <algorithm>
 
-SnakeController::SnakeController(GameLibrary::Actor* owner, GameLibrary::IInputProvider& input,
-                                 GameLibrary::EventService& eventSystem, const GameLibrary::EngineConfig& engineConfig,
+SnakeController::SnakeController(GameLibrary::Actor* owner, GameLibrary::EventService& eventSystem,
+                                 const GameLibrary::EngineConfig& engineConfig,
                                  const SnakeGame::SnakeGameConfig& gameConfig)
     : Component(owner)
-    , m_input(input)
-    , m_eventSystem(eventSystem)
+    , m_eventService(eventSystem)
     , m_engineConfig(engineConfig)
     , m_gameConfig(gameConfig)
 {
@@ -22,63 +21,53 @@ SnakeController::SnakeController(GameLibrary::Actor* owner, GameLibrary::IInputP
 
 void SnakeController::Init()
 {
-    m_gameOverToken = m_eventSystem.Subscribe<GameOverEvent>([this]([[maybe_unused]] const GameOverEvent& event)
-                                                             { m_isGameOver = true; });
+    m_movement = m_owner->GetComponent<GameLibrary::GridMovementComponent>();
+    m_gameOverToken = m_eventService.Subscribe<GameOverEvent>([this]([[maybe_unused]] const GameOverEvent& event)
+                                                              { m_isGameOver = true; });
 }
 
-void SnakeController::Update(const float deltaTime)
+void SnakeController::Update([[maybe_unused]] const float deltaTime)
 {
     if (m_isGameOver)
     {
         return;
     }
 
-    if (m_input.IsKeyPressed(GameLibrary::KeyCode::Up) && m_direction.y == 0)
+    if (not m_movement)
     {
-        m_direction = {0.0f, -1.0f};
-    }
-    else if (m_input.IsKeyPressed(GameLibrary::KeyCode::Down) && m_direction.y == 0)
-    {
-        m_direction = {0.0f, 1.0f};
-    }
-    else if (m_input.IsKeyPressed(GameLibrary::KeyCode::Left) && m_direction.x == 0)
-    {
-        m_direction = {-1.0f, 0.0f};
-    }
-    else if (m_input.IsKeyPressed(GameLibrary::KeyCode::Right) && m_direction.x == 0)
-    {
-        m_direction = {1.0f, 0.0f};
+        return;
     }
 
-    m_moveTimer += deltaTime;
-    if (m_moveTimer >= m_gameConfig.moveInterval)
+    if (not m_movement->HasMovedThisFrame())
     {
-        m_moveTimer = 0.0f;
-
-        auto& transform = m_owner->GetTransform();
-
-        m_body.insert(m_body.begin(), transform.position);
-
-        transform.position.x += m_direction.x * static_cast<float>(m_gameConfig.gridSize);
-        transform.position.y += m_direction.y * static_cast<float>(m_gameConfig.gridSize);
-
-        if (CheckCollision())
-        {
-            m_eventSystem.Publish(GameOverEvent{});
-            return;
-        }
-
-        if (m_shouldGrow)
-        {
-            m_shouldGrow = false;
-        }
-        else if (!m_body.empty())
-        {
-            m_body.pop_back();
-        }
-
-        m_eventSystem.Publish(SnakeMovedEvent{transform.position});
+        return;
     }
+
+    const auto& transform = m_owner->GetTransform();
+
+    const auto direction = m_movement->GetDirection();
+    const sf::Vector2f previousPosition = {
+        transform.position.x - direction.x * static_cast<float>(m_gameConfig.gridSize),
+        transform.position.y - direction.y * static_cast<float>(m_gameConfig.gridSize)};
+
+    m_body.insert(m_body.begin(), previousPosition);
+
+    if (m_shouldGrow)
+    {
+        m_shouldGrow = false;
+    }
+    else if (!m_body.empty())
+    {
+        m_body.pop_back();
+    }
+
+    if (CheckCollision())
+    {
+        m_eventService.Publish(GameOverEvent{});
+        return;
+    }
+
+    m_eventService.Publish(SnakeMovedEvent{transform.position});
 }
 
 void SnakeController::Render(GameLibrary::IGraphics& graphics)

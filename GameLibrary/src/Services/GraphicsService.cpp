@@ -1,7 +1,7 @@
-#include "../../include/Services/GraphicsService.hpp"
+#include "Services/GraphicsService.hpp"
 
-#include "../../include/Services/ConfigService.hpp"
-#include "../../include/Systems/Logger.hpp"
+#include "Services/ConfigService.hpp"
+#include "Systems/Logger.hpp"
 #include "Core/ServiceContainer.hpp"
 #include "Platform/Window.hpp"
 #include "Services/ResourceService.hpp"

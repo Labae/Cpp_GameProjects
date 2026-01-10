@@ -13,9 +13,9 @@ namespace GameLibrary
 
     Actor* Scene::CreateActor()
     {
-        auto actor = std::make_unique<Actor>(this);
-        auto* ptr = actor.get();
-        m_actors.emplace_back(std::move(actor));
+        m_actors.emplace_back(std::make_unique<Actor>(this));
+        auto* ptr = m_actors.back().get();
+        ptr->OnCreate();
 
         return ptr;
     }
@@ -37,7 +37,7 @@ namespace GameLibrary
     {
         for (const auto& actor : m_actors)
         {
-            if (actor->IsActive() and not actor->IsPendingDestroy())
+            if (actor->IsActive() and actor->IsUpdateEnabled() and not actor->IsPendingDestroy())
             {
                 actor->Update(deltaTime);
             }
@@ -48,11 +48,11 @@ namespace GameLibrary
 
     void Scene::Render(IGraphics& graphics)
     {
-        for (const auto& gameObject : m_actors)
+        for (const auto& actor : m_actors)
         {
-            if (gameObject->IsActive())
+            if (actor->IsActive() and actor->IsRenderEnabled())
             {
-                gameObject->Render(graphics);
+                actor->Render(graphics);
             }
         }
     }
@@ -72,8 +72,7 @@ namespace GameLibrary
         for (auto* actor : m_pendingDestroy)
         {
             actor->DestroyInternal();
-            auto it = std::ranges::find_if(m_actors,
-                                   [actor](const auto& ptr) { return ptr.get() == actor; });
+            auto it = std::ranges::find_if(m_actors, [actor](const auto& ptr) { return ptr.get() == actor; });
             if (it != m_actors.end())
             {
                 m_actors.erase(it);

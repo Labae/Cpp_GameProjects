@@ -1,4 +1,4 @@
-#include "../../include/Actor/BoxCollider.hpp"
+#include "Actor/BoxCollider.hpp"
 
 #include "Actor/Actor.hpp"
 #include "Actor/Transform.hpp"
@@ -29,6 +29,11 @@ namespace GameLibrary
 
     void BoxCollider::OnCollision(Actor* other)
     {
+        if (not m_enabled)
+        {
+            return;
+        }
+
         if (not m_onCollision)
         {
             return;

@@ -16,12 +16,14 @@ namespace GameLibrary
 namespace SnakeGame
 {
     struct GameData;
-}
+    class SnakePlayerController;
+} // namespace SnakeGame
 
 class GameScene final : public GameLibrary::Scene
 {
 public:
     GameScene(const std::string& name, GameLibrary::ServiceContainer& container);
+    ~GameScene() override;
 
     void OnEnter() override;
     void OnExit() override;
@@ -57,4 +59,6 @@ private:
     PauseState m_pauseState{PauseState::None};
     int32_t m_menuIndex{};
     int32_t m_settingsIndex{};
+
+    std::unique_ptr<SnakeGame::SnakePlayerController> m_playerController{};
 };

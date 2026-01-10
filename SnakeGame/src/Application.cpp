@@ -1,8 +1,8 @@
 #include "Application.hpp"
 
-#include "../../GameLibrary/include/Services/AudioService.hpp"
-#include "../../GameLibrary/include/Services/SaveService.hpp"
-#include "../../GameLibrary/include/Systems/Logger.hpp"
+#include "Services/AudioService.hpp"
+#include "Services/SaveService.hpp"
+#include "Systems/Logger.hpp"
 #include "Config/SnakeGameConfig.hpp"
 #include "Data/GameData.hpp"
 #include "Scene/SceneManager.hpp"

@@ -4,7 +4,7 @@
 
 #include "Services/ResourceService.hpp"
 
-#include "../../include/Systems/Logger.hpp"
+#include "Systems/Logger.hpp"
 
 namespace GameLibrary
 {

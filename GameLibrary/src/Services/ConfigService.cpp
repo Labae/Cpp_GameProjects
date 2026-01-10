@@ -1,6 +1,6 @@
-#include "../../include/Services/ConfigService.hpp"
+#include "Services/ConfigService.hpp"
 
-#include "../../include/Systems/Logger.hpp"
+#include "Systems/Logger.hpp"
 
 #include <algorithm>
 #include <fstream>

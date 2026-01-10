@@ -1,4 +1,4 @@
-#include "../../include/Services/InputService.hpp"
+#include "Services/InputService.hpp"
 
 namespace GameLibrary
 {

@@ -1,11 +1,12 @@
 #include "Scenes/GameScene.hpp"
 
-#include "../../../GameLibrary/include/Actor/BoxCollider.hpp"
+#include "Actor/BoxCollider.hpp"
 #include "Components/FoodSpawner.hpp"
 #include "Components/GameManager.hpp"
 #include "Components/GridBackground.hpp"
 #include "Components/SnakeController.hpp"
 #include "Config/SnakeGameConfig.hpp"
+#include "Controllers/SnakePlayerController.hpp"
 #include "Core/EngineConfig.hpp"
 #include "Core/ServiceContainer.hpp"
 #include "Data/GameData.hpp"
@@ -25,6 +26,7 @@ namespace
 }
 
 GameScene::GameScene(const std::string& name, GameLibrary::ServiceContainer& container) : Scene(name, container) {}
+GameScene::~GameScene() = default;
 
 void GameScene::OnEnter()
 {
@@ -67,6 +69,12 @@ void GameScene::OnExit()
         m_audioService->StopBGM();
     }
 
+    if (m_playerController)
+    {
+        m_playerController->UnPossess();
+        m_playerController.reset();
+    }
+
     Clear();
     m_fxSystem->Clear();
 }
@@ -88,6 +96,11 @@ void GameScene::Update(float deltaTime)
         }
         else
         {
+            if (m_playerController)
+            {
+                m_playerController->Update(deltaTime);
+            }
+
             Scene::Update(deltaTime);
             if (m_fxSystem)
             {
@@ -206,7 +219,7 @@ void GameScene::UpdateSettings()
 
 void GameScene::SaveSettings() const
 {
-    if (!m_gameData || !m_audioService || !m_saveSystem)
+    if (not m_gameData or not m_saveSystem)
     {
         return;
     }
@@ -376,24 +389,28 @@ void GameScene::SetupGame()
     auto* grid = CreateActor();
     grid->AddComponent<GridBackground>(engineConfig->screenWidth, engineConfig->screenHeight, gameConfig->gridSize);
 
-    // GameManager
-    auto* manager = CreateActor();
-    manager->AddComponent<GameManager>(*eventSystem, *input, *sceneManager, *soundSystem, *engineConfig, *gameConfig,
-                                       *gameData, *m_fxSystem);
-
     // Snake
-    auto* snake = CreateActor();
+    auto* snake = CreateActor<GameLibrary::Pawn>();
     snake->GetTransform().position = {
         static_cast<float>((engineConfig->screenWidth / 2 / gameConfig->gridSize) * gameConfig->gridSize),
         static_cast<float>((engineConfig->screenHeight / 2 / gameConfig->gridSize) * gameConfig->gridSize)};
-    auto* snakeController =
-        snake->AddComponent<SnakeController>(*input, *eventSystem, *engineConfig, *gameConfig);
 
-    snake->AddComponent<GameLibrary::BoxCollider>(
-       *physicsSystem, gameConfig->gridSize, gameConfig->gridSize,
-        [snakeController](GameLibrary::Actor* other) { snakeController->OnCollision(other); });
+    snake->AddComponent<GameLibrary::GridMovementComponent>(gameConfig->gridSize, gameConfig->moveInterval);
+    auto* snakeController = snake->AddComponent<SnakeController>(*eventSystem, *engineConfig, *gameConfig);
+
+    snake->AddComponent<GameLibrary::BoxCollider>(*physicsSystem, gameConfig->gridSize, gameConfig->gridSize,
+                                                  [snakeController](GameLibrary::Actor* other)
+                                                  { snakeController->OnCollision(other); });
+
+    m_playerController = std::make_unique<SnakeGame::SnakePlayerController>(*input);
+    m_playerController->Possess(snake);
 
     // FoodSpawner
     auto* spawner = CreateActor();
     spawner->AddComponent<FoodSpawner>(*this, *eventSystem, *engineConfig, *gameConfig);
+
+    // GameManager
+    auto* manager = CreateActor();
+    manager->AddComponent<GameManager>(*snake, *eventSystem, *input, *sceneManager, *soundSystem, *engineConfig, *gameConfig,
+                                       *gameData, *m_fxSystem);
 }

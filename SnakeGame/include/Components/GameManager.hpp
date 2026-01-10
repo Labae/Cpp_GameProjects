@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../../GameLibrary/include/Actor/Component.hpp"
-#include "../../../GameLibrary/include/Services/EventService.hpp"
+#include "Actor/Component.hpp"
+#include "Services/EventService.hpp"
 
 namespace GameLibrary
 {
@@ -23,7 +23,7 @@ class GameManager final : public GameLibrary::Component
 {
 public:
     GameManager(
-        GameLibrary::Actor* owner,
+        GameLibrary::Actor* owner, GameLibrary::Actor& snakeActor,
         GameLibrary::EventService& eventSystem, GameLibrary::IInputProvider& input,
                 GameLibrary::SceneManager& sceneManager, GameLibrary::AudioService& soundSystem,
                 GameLibrary::EngineConfig& engineConfig, const SnakeGame::SnakeGameConfig& gameConfig,
@@ -51,6 +51,8 @@ private:
     GameLibrary::SubscriptionToken m_goldenFoodEatenToken{};
     GameLibrary::SubscriptionToken m_foodEatenToken{};
     GameLibrary::SubscriptionToken m_gameOverToken{};
+
+    GameLibrary::Actor& m_snakeActor;
 
     int32_t m_score{};
     float m_elapsedTime{};

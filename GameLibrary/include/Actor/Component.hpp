@@ -23,7 +23,11 @@ namespace GameLibrary
 
         [[nodiscard]] Actor* GetOwner() const noexcept { return m_owner; }
 
+        void SetEnabled(const bool enabled) noexcept { m_enabled = enabled; }
+        [[nodiscard]] bool IsEnabled() const noexcept { return m_enabled; }
+
     protected:
         Actor* const m_owner{};
+        bool m_enabled{true};
     };
 } // namespace GameLibrary

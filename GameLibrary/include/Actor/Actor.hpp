@@ -74,6 +74,12 @@ namespace GameLibrary
         [[nodiscard]] bool IsActive() const noexcept { return m_isActive; }
         void SetActive(const bool active) noexcept { m_isActive = active; }
 
+        [[nodiscard]] bool IsUpdateEnabled() const noexcept { return m_updateEnabled; }
+        void SetUpdateEnabled(const bool enabled) noexcept { m_updateEnabled = enabled; }
+
+        [[nodiscard]] bool IsRenderEnabled() const noexcept { return m_renderEnabled; }
+        void SetRenderEnabled(const bool enabled) noexcept { m_renderEnabled = enabled; }
+
         [[nodiscard]] bool IsPendingDestroy() const noexcept { return m_pendingDestroy; }
 
     protected:
@@ -84,6 +90,8 @@ namespace GameLibrary
         void DestroyInternal();
 
         bool m_isActive{true};
+        bool m_updateEnabled{true};
+        bool m_renderEnabled{true};
         bool m_pendingDestroy{false};
 
         std::vector<std::unique_ptr<Component>> m_components{};

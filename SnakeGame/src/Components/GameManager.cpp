@@ -14,11 +14,11 @@
 
 #include <format>
 
-GameManager::GameManager(GameLibrary::Actor* owner, GameLibrary::EventService& eventSystem,
-                         GameLibrary::IInputProvider& input, GameLibrary::SceneManager& sceneManager,
-                         GameLibrary::AudioService& soundSystem, GameLibrary::EngineConfig& engineConfig,
-                         const SnakeGame::SnakeGameConfig& gameConfig, SnakeGame::GameData& gameData,
-                         GameLibrary::FxService& fxSystem)
+GameManager::GameManager(GameLibrary::Actor* owner, GameLibrary::Actor& snakeActor,
+                         GameLibrary::EventService& eventSystem, GameLibrary::IInputProvider& input,
+                         GameLibrary::SceneManager& sceneManager, GameLibrary::AudioService& soundSystem,
+                         GameLibrary::EngineConfig& engineConfig, const SnakeGame::SnakeGameConfig& gameConfig,
+                         SnakeGame::GameData& gameData, GameLibrary::FxService& fxSystem)
     : Component(owner)
     , m_eventSystem(eventSystem)
     , m_input(input)
@@ -27,6 +27,7 @@ GameManager::GameManager(GameLibrary::Actor* owner, GameLibrary::EventService& e
     , m_engineConfig(engineConfig)
     , m_gameData(gameData)
     , m_fxSystem(fxSystem)
+    , m_snakeActor(snakeActor)
     , m_gameOverDelay(gameConfig.gameOverDelay)
 {
 }
@@ -118,6 +119,8 @@ void GameManager::OnGameOver([[maybe_unused]] const GameOverEvent& event)
     m_isGameOver = true;
     m_gameData.lastScore = m_score;
     m_soundSystem.Play("gameover");
+
+    m_snakeActor.SetUpdateEnabled(false);
 
     m_fxSystem.Spawn<GameLibrary::ShakeFx>(10.0f, 1.0f);
     m_fxSystem.Spawn<GameLibrary::FlashFx>(m_engineConfig.screenWidth, m_engineConfig.screenHeight,
