@@ -18,8 +18,6 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../GameLibrary ${CMAKE_BINARY_DIR}/
 # 소스 파일 수집
 file(GLOB_RECURSE SOURCES
     "src/*.cpp"
-    "src/Components/*.cpp"
-    "src/Scenes/*.cpp"
 )
 
 # 실행 파일 생성
@@ -44,17 +42,24 @@ target_link_libraries(${PROJECT_NAME}
 
 # 리소스 파일 복사 (빌드 후)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${CMAKE_CURRENT_SOURCE_DIR}/engine.yaml
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/engine.yamlㅣ
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/engine.yaml
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${CMAKE_CURRENT_SOURCE_DIR}/game.yaml
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/game.yaml
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_CURRENT_SOURCE_DIR}/assets
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
-    COMMENT "Copying resources to build directory"
+        COMMENT "Copying config files to build directory"
 )
+
+# assets 폴더가 존재할 때만 복사
+if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/assets)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_directory
+            ${CMAKE_CURRENT_SOURCE_DIR}/assets
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/assets
+            COMMENT "Copying assets to build directory"
+    )
+endif()
 
 # 정보 출력
 message(STATUS "SnakeGame Configuration:")
