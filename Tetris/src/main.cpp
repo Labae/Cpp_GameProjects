@@ -2,6 +2,10 @@
 // Created by Labae on 1/12/26.
 //
 
-int main() {
-    return 0;
+#include "Application.hpp"
+
+int main()
+{
+    Tetris::Application app;
+    return app.Run();
 }
