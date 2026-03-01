@@ -1,1 +1,7 @@
 # Game Configuration
+boardWidth: 10
+boardHeight: 20
+cellSize: 32
+boardX: 240
+boardY: 80
+holdNextBoxSize: 128

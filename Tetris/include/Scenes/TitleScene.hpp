@@ -26,7 +26,7 @@ namespace Tetris
         void Render(GameLibrary::IGraphics& graphics) override;
 
     private:
-        enum class EMenuItem : int32_t
+        enum class EMenuItem : uint8_t
         {
             SinglePlay,
             BattleMode,

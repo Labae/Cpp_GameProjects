@@ -4,6 +4,8 @@
 
 #include "Application.hpp"
 
+#include "Constants/Resources.hpp"
+#include "Constants/SceneNames.hpp"
 #include "Scene/SceneManager.hpp"
 #include "Scenes/TitleScene.hpp"
 #include "Services/ResourceService.hpp"
@@ -33,7 +35,7 @@ namespace Tetris
         LoadResources();
         RegisterScenes();
 
-        m_engine.GetContainer().Resolve<GameLibrary::SceneManager>()->LoadScene("Title");
+        m_engine.GetContainer().Resolve<GameLibrary::SceneManager>()->LoadScene(SceneNames::Title);
         m_engine.Run();
         m_engine.Shutdown();
 
@@ -44,7 +46,7 @@ namespace Tetris
     {
         auto* sceneManager = m_engine.GetContainer().Resolve<GameLibrary::SceneManager>();
 
-        sceneManager->RegisterSceneFactory("Title",
+        sceneManager->RegisterSceneFactory(SceneNames::Title,
                                            [](const std::string& name, GameLibrary::ServiceContainer& container)
                                            { return std::make_unique<TitleScene>(name, container); });
     }
@@ -58,7 +60,7 @@ namespace Tetris
             return;
         }
 
-        if (not resourceService->LoadFont("main", "assets/fonts/NotoSans_Black.ttf"))
+        if (not resourceService->LoadFont(Resources::Fonts::Main.Id, Resources::Fonts::Main.Path))
         {
             GameLibrary::Logger::Error("Failed to load main font");
         }

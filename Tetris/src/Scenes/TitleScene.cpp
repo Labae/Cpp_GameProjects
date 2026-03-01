@@ -4,6 +4,7 @@
 
 #include "Scenes/TitleScene.hpp"
 
+#include "Constants/SceneNames.hpp"
 #include "Core/EngineConfig.hpp"
 #include "Core/ServiceContainer.hpp"
 #include "Interfaces/IInputProvider.hpp"
@@ -35,11 +36,19 @@ namespace Tetris
         constexpr sf::Color COLOR_MENU_NORMAL{150, 150, 150, 255};
         constexpr sf::Color COLOR_HINT{100, 100, 100, 255};
 
-        // 타이틀 텍스트
-        constexpr auto TITLE_TEXT = "TETRIS";
+        // 텍스트
+        constexpr auto TEXT_TITLE = "TETRIS";
+        constexpr auto TEXT_HINT = "Use Arrow Keys to Navigate, Enter to Select";
+        constexpr auto TEXT_CURSOR_LEFT = ">";
+        constexpr auto TEXT_CURSOR_RIGHT = "<";
 
         // 메뉴 텍스트
-        constexpr const char* MENU_LABELS[] = {"SINGLE PLAY", "BATTLE MODE", "SETTINGS", "EXIT"};
+        constexpr const char* MENU_LABELS[] = {
+            "SINGLE PLAY",
+            "BATTLE MODE",
+            "SETTINGS",
+            "EXIT"
+        };
     } // namespace
 
     TitleScene::TitleScene(const std::string& name, GameLibrary::ServiceContainer& container) : Scene(name, container)
@@ -88,7 +97,7 @@ namespace Tetris
         const int32_t centerX = m_engineConfig->screenWidth / 2;
 
         // 타이틀
-        graphics.DrawLabel(TITLE_TEXT, centerX, TITLE_Y, TITLE_FONT_SIZE, COLOR_TITLE, GameLibrary::TextAlign::Center);
+        graphics.DrawLabel(TEXT_TITLE, centerX, TITLE_Y, TITLE_FONT_SIZE, COLOR_TITLE, GameLibrary::TextAlign::Center);
 
         // 메뉴 항목
         constexpr auto menuCount = static_cast<int32_t>(EMenuItem::Count);
@@ -106,14 +115,14 @@ namespace Tetris
         if (m_showCursor)
         {
             const int32_t cursorY = MENU_START_Y + static_cast<int32_t>(m_selectedMenu) * MENU_SPACING;
-            graphics.DrawLabel(">", centerX - CURSOR_OFFSET_X, cursorY, MENU_FONT_SIZE_SELECTED, COLOR_MENU_SELECTED,
+            graphics.DrawLabel(TEXT_CURSOR_LEFT, centerX - CURSOR_OFFSET_X, cursorY, MENU_FONT_SIZE_SELECTED, COLOR_MENU_SELECTED,
                                GameLibrary::TextAlign::Center);
-            graphics.DrawLabel("<", centerX + CURSOR_OFFSET_X, cursorY, MENU_FONT_SIZE_SELECTED, COLOR_MENU_SELECTED,
+            graphics.DrawLabel(TEXT_CURSOR_RIGHT, centerX + CURSOR_OFFSET_X, cursorY, MENU_FONT_SIZE_SELECTED, COLOR_MENU_SELECTED,
                                GameLibrary::TextAlign::Center);
         }
 
         // 하단 안내
-        graphics.DrawLabel("Use Arrow Keys to Navigate, Enter to Select", centerX, HINT_Y, HINT_FONT_SIZE, COLOR_HINT,
+        graphics.DrawLabel(TEXT_HINT, centerX, HINT_Y, HINT_FONT_SIZE, COLOR_HINT,
                            GameLibrary::TextAlign::Center);
     }
 
@@ -123,12 +132,12 @@ namespace Tetris
         {
         case EMenuItem::SinglePlay:
         {
-            m_sceneManager->LoadScene("SingleGame");
+            m_sceneManager->LoadScene(SceneNames::SingleGame);
             break;
         }
         case EMenuItem::BattleMode:
         {
-            m_sceneManager->LoadScene("BattleLobby");
+            m_sceneManager->LoadScene(SceneNames::BattleLobby);
             break;
         }
         case EMenuItem::Settings:
