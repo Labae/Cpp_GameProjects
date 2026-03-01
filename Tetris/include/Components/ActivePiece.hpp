@@ -25,12 +25,17 @@ namespace Tetris
         void Spawn(ETetromino type);
 
     private:
+        void HandleInput();
         void MoveLeft();
         void MoveRight();
-        void MoveDown();
+        void SoftDrop();
+        void HardDrop();
         void RotateCW();
         void RotateCCW();
-        [[nodiscard]] bool CanMove(int32_t newX, int32_t newY, int32_t newRotation)  const noexcept;
+
+        void Lock();
+
+        [[nodiscard]] bool CanMove(int32_t newX, int32_t newY, int32_t newRotation) const noexcept;
 
         const TetrisConfig& m_config;
         Board& m_board;
@@ -41,6 +46,9 @@ namespace Tetris
         int32_t m_gridY{};
         int32_t m_rotation{};
         bool m_active{};
+
+        float m_fallTimer{};
+        float m_fallInterval{1.0f};
     };
 } // namespace Tetris
 

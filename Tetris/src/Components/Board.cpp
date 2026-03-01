@@ -4,6 +4,7 @@
 
 #include "Components/Board.hpp"
 
+#include "Data/Tetromino.hpp"
 #include "Interfaces/IGraphics.hpp"
 
 namespace
@@ -30,6 +31,7 @@ namespace Tetris
 
         RenderGrid(graphics);
         RenderBorder(graphics);
+        RenderCells(graphics);
     }
 
     void Board::Clear()
@@ -39,7 +41,8 @@ namespace Tetris
             std::ranges::fill(row, 0);
         }
     }
-    bool Board::IsCellEmpty(int32_t x, int32_t y) const
+
+    bool Board::IsCellEmpty(const int32_t x, const int32_t y) const noexcept
     {
         if (x < 0 || x >= m_config.boardWidth || y < 0 || y >= m_config.boardHeight)
         {
@@ -47,6 +50,14 @@ namespace Tetris
         }
 
         return m_cells[y][x] == 0;
+    }
+
+    void Board::SetCell(int32_t x, int32_t y, const uint8_t value) noexcept
+    {
+        if (x >= 0 && x < m_config.boardWidth && y >= 0 && y < m_config.boardHeight)
+        {
+            m_cells[y][x] = value;
+        }
     }
 
     void Board::RenderGrid(GameLibrary::IGraphics& graphics) const
@@ -67,5 +78,22 @@ namespace Tetris
     void Board::RenderBorder(GameLibrary::IGraphics& graphics) const
     {
         graphics.DrawRect(m_config.boardX, m_config.boardY, m_boardPixelWidth, m_boardPixelHeight, COLOR_BORDER);
+    }
+    void Board::RenderCells(GameLibrary::IGraphics& graphics) const
+    {
+        for (int32_t y = 0; y < m_config.boardHeight; ++y)
+        {
+            for (int32_t x = 0; x < m_config.boardWidth; ++x)
+            {
+                if (const uint8_t cell = m_cells[y][x]; cell > 0)
+                {
+                    const auto type = static_cast<ETetromino>(cell - 1);
+                    const auto& color = GetTetrominoColor(type);
+                    const int32_t px = m_config.boardX + x * m_config.cellSize;
+                    const int32_t py = m_config.boardY + y * m_config.cellSize;
+                    graphics.FillRect(px, py, m_config.cellSize, m_config.cellSize, color);
+                }
+            }
+        }
     }
 } // namespace Tetris
