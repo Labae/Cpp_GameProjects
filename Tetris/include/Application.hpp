@@ -25,6 +25,7 @@ namespace Tetris
     private:
         void RegisterScenes();
         void LoadResources();
+        void LoadConfigs();
 
         GameLibrary::Engine m_engine{};
     };

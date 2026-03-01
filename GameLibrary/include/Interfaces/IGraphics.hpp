@@ -20,6 +20,7 @@ namespace GameLibrary
 
         virtual void Clear(const sf::Color& color) = 0;
         virtual void DrawRect(int32_t x, int32_t y, int32_t width, int32_t height, const sf::Color& color) = 0;
+        virtual void DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const sf::Color& color) = 0;
         virtual void FillRect(int32_t x, int32_t y, int32_t width, int32_t height, const sf::Color& color) = 0;
         virtual void DrawLabel(const std::string& text, int32_t x, int32_t y, int32_t fontSize, const sf::Color& color,
                                TextAlign align = TextAlign::Left) = 0;

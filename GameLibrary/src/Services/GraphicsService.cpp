@@ -22,7 +22,8 @@ namespace GameLibrary
         }
     }
 
-    void GraphicsService::DrawRect(const int32_t x, const int32_t y, const int32_t width, const int32_t height, const sf::Color& color) noexcept
+    void GraphicsService::DrawRect(const int32_t x, const int32_t y, const int32_t width, const int32_t height,
+                                   const sf::Color& color) noexcept
     {
         if (not m_window)
         {
@@ -36,6 +37,21 @@ namespace GameLibrary
         rect.setOutlineThickness(1.0f);
 
         m_window->draw(rect);
+    }
+    void GraphicsService::DrawLine(const int32_t x1, const int32_t y1, const int32_t x2, const int32_t y2, const sf::Color& color) noexcept
+    {
+        if (not m_window)
+        {
+            return;
+        }
+
+        sf::VertexArray line(sf::PrimitiveType::Lines, 2);
+        line[0].position = sf::Vector2f(x1 + m_offsetX, y1 + m_offsetY);
+        line[0].color = color;
+        line[1].position = sf::Vector2f(x2 + m_offsetX, y2 + m_offsetY);
+        line[1].color = color;
+
+        m_window->draw(line);
     }
 
     void GraphicsService::FillRect(const int32_t x, const int32_t y, const int32_t width, const int32_t height, const sf::Color& color) noexcept

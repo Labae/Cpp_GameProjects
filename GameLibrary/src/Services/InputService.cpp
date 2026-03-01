@@ -84,6 +84,10 @@ namespace GameLibrary
             return sf::Keyboard::Scan::Escape;
         case KeyCode::F5:
             return sf::Keyboard::Scan::F5;
+        case KeyCode::X:
+            return sf::Keyboard::Scan::X;
+        case KeyCode::Z:
+            return sf::Keyboard::Scan::Z;
         default:
             return sf::Keyboard::Scan::Unknown;
         }

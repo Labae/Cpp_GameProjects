@@ -5,7 +5,7 @@
 
 namespace GameLibrary
 {
-    enum class LogLevel
+    enum class ELogLevel
     {
         Normal,
         Info,
@@ -24,22 +24,22 @@ namespace GameLibrary
         Logger& operator=(const Logger&) = delete;
         Logger& operator=(Logger&&) = delete;
 
-        static void Log(const LogLevel level, const std::string& message)
+        static void Log(const ELogLevel level, const std::string& message)
         {
             std::string prefix;
 
             switch (level)
             {
-            case LogLevel::Normal:
+            case ELogLevel::Normal:
                 prefix = "\033[37m[Normal]\033[0m ";
                 break;
-            case LogLevel::Info:
+            case ELogLevel::Info:
                 prefix = "\033[32m[INFO]\033[0m ";
                 break;
-            case LogLevel::Warning:
+            case ELogLevel::Warning:
                 prefix = "\033[33m[WARNING]\033[0m ";
                 break;
-            case LogLevel::Error:
+            case ELogLevel::Error:
                 prefix = "\033[31m[ERROR]\033[0m ";
                 break;
             }
@@ -47,9 +47,9 @@ namespace GameLibrary
             std::cout << prefix << message << '\n';
         }
 
-        static void Normal(const std::string& message) { Log(LogLevel::Normal, message); }
-        static void Info(const std::string& message) { Log(LogLevel::Info, message); }
-        static void Warning(const std::string& message) { Log(LogLevel::Warning, message); }
-        static void Error(const std::string& message) { Log(LogLevel::Error, message); }
+        static void Normal(const std::string& message) { Log(ELogLevel::Normal, message); }
+        static void Info(const std::string& message) { Log(ELogLevel::Info, message); }
+        static void Warning(const std::string& message) { Log(ELogLevel::Warning, message); }
+        static void Error(const std::string& message) { Log(ELogLevel::Error, message); }
     };
 } // namespace GameLibrary

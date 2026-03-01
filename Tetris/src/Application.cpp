@@ -4,17 +4,21 @@
 
 #include "Application.hpp"
 
+#include "Configs/TetrisConfig.hpp"
 #include "Constants/Resources.hpp"
 #include "Constants/SceneNames.hpp"
 #include "Scene/SceneManager.hpp"
+#include "Scenes/SingleGameScene.hpp"
 #include "Scenes/TitleScene.hpp"
+#include "Services/ConfigService.hpp"
 #include "Services/ResourceService.hpp"
 #include "Systems/Logger.hpp"
 
 namespace
 {
     constexpr auto ENGINE_CONFIG_PATH = "engine.yaml";
-}
+    constexpr auto GAME_CONFIG_PATH = "game.yaml";
+} // namespace
 
 namespace Tetris
 {
@@ -32,6 +36,10 @@ namespace Tetris
             return -1;
         }
 
+        auto& container = m_engine.GetContainer();
+        container.Register<TetrisConfig, TetrisConfig>();
+
+        LoadConfigs();
         LoadResources();
         RegisterScenes();
 
@@ -49,6 +57,10 @@ namespace Tetris
         sceneManager->RegisterSceneFactory(SceneNames::Title,
                                            [](const std::string& name, GameLibrary::ServiceContainer& container)
                                            { return std::make_unique<TitleScene>(name, container); });
+
+        sceneManager->RegisterSceneFactory(SceneNames::SingleGame,
+                                           [](const std::string& name, GameLibrary::ServiceContainer& container)
+                                           { return std::make_unique<SingleGameScene>(name, container); });
     }
 
     void Application::LoadResources()
@@ -64,5 +76,31 @@ namespace Tetris
         {
             GameLibrary::Logger::Error("Failed to load main font");
         }
+    }
+
+    void Application::LoadConfigs()
+    {
+        auto& container = m_engine.GetContainer();
+        auto* configService = container.Resolve<GameLibrary::ConfigService>();
+        auto* tetrisConfig = container.Resolve<TetrisConfig>();
+
+        if (not configService || not tetrisConfig)
+        {
+            GameLibrary::Logger::Error("Failed to load config services");
+            return;
+        }
+
+        if (not configService->LoadFromFile(GAME_CONFIG_PATH))
+        {
+            GameLibrary::Logger::Error("Failed to load game config, using defaults");
+            return;
+        }
+
+        tetrisConfig->boardWidth = configService->GetInt("boardWidth", tetrisConfig->boardWidth);
+        tetrisConfig->boardHeight = configService->GetInt("boardHeight", tetrisConfig->boardHeight);
+        tetrisConfig->cellSize = configService->GetInt("cellSize", tetrisConfig->cellSize);
+        tetrisConfig->boardX = configService->GetInt("boardX", tetrisConfig->boardX);
+        tetrisConfig->boardY = configService->GetInt("boardY", tetrisConfig->boardY);
+        tetrisConfig->holdNextBoxSize = configService->GetInt("holdNextBoxSize", tetrisConfig->holdNextBoxSize);
     }
 } // namespace Tetris

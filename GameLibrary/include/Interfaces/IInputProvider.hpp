@@ -14,7 +14,9 @@ namespace GameLibrary
         Space,
         Enter,
         Escape,
-        F5
+        F5,
+        X,
+        Z
     };
 
     class IInputProvider
