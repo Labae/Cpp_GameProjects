@@ -41,6 +41,38 @@ namespace Tetris
             std::ranges::fill(row, 0);
         }
     }
+    int32_t Board::ClearFullLines()
+    {
+        int32_t linesCleared = 0;
+
+        for (int32_t y = m_config.boardHeight - 1; y >= 0; --y)
+        {
+            bool isFull = true;
+            for (int32_t x = 0; x < m_config.boardWidth; ++x)
+            {
+                if (m_cells[y][x] == 0)
+                {
+                    isFull = false;
+                    break;
+                }
+            }
+
+            if (isFull)
+            {
+                ++linesCleared;
+
+                for (int32_t row = y; row > 0; --row)
+                {
+                    m_cells[row] = m_cells[row - 1];
+                }
+
+                std::ranges::fill(m_cells[0], 0);
+                ++y;
+            }
+        }
+
+        return linesCleared;
+    }
 
     bool Board::IsCellEmpty(const int32_t x, const int32_t y) const noexcept
     {
@@ -52,7 +84,7 @@ namespace Tetris
         return m_cells[y][x] == 0;
     }
 
-    void Board::SetCell(int32_t x, int32_t y, const uint8_t value) noexcept
+    void Board::SetCell(const int32_t x, const int32_t y, const uint8_t value) noexcept
     {
         if (x >= 0 && x < m_config.boardWidth && y >= 0 && y < m_config.boardHeight)
         {
@@ -79,6 +111,7 @@ namespace Tetris
     {
         graphics.DrawRect(m_config.boardX, m_config.boardY, m_boardPixelWidth, m_boardPixelHeight, COLOR_BORDER);
     }
+
     void Board::RenderCells(GameLibrary::IGraphics& graphics) const
     {
         for (int32_t y = 0; y < m_config.boardHeight; ++y)
@@ -88,7 +121,7 @@ namespace Tetris
                 if (const uint8_t cell = m_cells[y][x]; cell > 0)
                 {
                     const auto type = static_cast<ETetromino>(cell - 1);
-                    const auto& color = GetTetrominoColor(type);
+                    const auto& color = GetTetromino(type).color;
                     const int32_t px = m_config.boardX + x * m_config.cellSize;
                     const int32_t py = m_config.boardY + y * m_config.cellSize;
                     graphics.FillRect(px, py, m_config.cellSize, m_config.cellSize, color);

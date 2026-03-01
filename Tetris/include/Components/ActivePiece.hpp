@@ -23,6 +23,7 @@ namespace Tetris
         void Render(GameLibrary::IGraphics& graphics) override;
 
         void Spawn(ETetromino type);
+        [[nodiscard]] bool IsActive() const noexcept { return m_active; }
 
     private:
         void HandleInput();

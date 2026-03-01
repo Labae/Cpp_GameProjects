@@ -29,7 +29,24 @@ namespace Tetris
 
         // Piece
         auto* pieceActor = CreateActor();
-        auto* activePiece = pieceActor->AddComponent<ActivePiece>(*m_tetrisConfig, *board, *input);
-        activePiece->Spawn(ETetromino::I);
+        m_activePiece = pieceActor->AddComponent<ActivePiece>(*m_tetrisConfig, *board, *input);
+        SpawnNewPiece();
+    }
+    
+    void SingleGameScene::Update(const float deltaTime)
+    {
+        Scene::Update(deltaTime);
+
+        if (not m_activePiece->IsActive())
+        {
+            SpawnNewPiece();
+        }
+    }
+
+    void SingleGameScene::SpawnNewPiece()
+    {
+        std::uniform_int_distribution<int32_t> dist(0, static_cast<int32_t>(ETetromino::Count) - 1);
+        const auto type = static_cast<ETetromino>(dist(m_rnd));
+        m_activePiece->Spawn(type);
     }
 } // namespace Tetris

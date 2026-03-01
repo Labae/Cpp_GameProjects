@@ -82,17 +82,8 @@ namespace Tetris
         TETROMINO_I, TETROMINO_O, TETROMINO_T, TETROMINO_S, TETROMINO_Z, TETROMINO_J, TETROMINO_L,
     };
 
-    constexpr std::array TETROMINO_COLORS = {
-        COLOR_I, COLOR_O, COLOR_T, COLOR_S, COLOR_Z, COLOR_J, COLOR_L,
-    };
-
     const Tetromino& GetTetromino(const ETetromino type) noexcept
     {
         return TETROMINOES[static_cast<size_t>(type)];
-    }
-
-    const sf::Color& GetTetrominoColor(const ETetromino type) noexcept
-    {
-        return TETROMINO_COLORS[static_cast<size_t>(type)];
     }
 } // namespace Tetris

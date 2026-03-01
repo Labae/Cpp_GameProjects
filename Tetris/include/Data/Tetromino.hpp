@@ -30,7 +30,6 @@ namespace Tetris
     };
 
     [[nodiscard]] const Tetromino& GetTetromino(ETetromino type) noexcept;
-    [[nodiscard]] const sf::Color& GetTetrominoColor(ETetromino type) noexcept;
 } // namespace Tetris
 
 #endif // TETROMINO_HPP

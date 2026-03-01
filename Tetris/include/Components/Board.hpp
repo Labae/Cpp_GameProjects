@@ -19,6 +19,8 @@ namespace Tetris
         void Render(GameLibrary::IGraphics& graphics) override;
         void Clear();
 
+        [[nodiscard]] int32_t ClearFullLines();
+
         [[nodiscard]] bool IsCellEmpty(int32_t x, int32_t y) const noexcept;
         void SetCell(int32_t x, int32_t y, uint8_t value) noexcept;
 
