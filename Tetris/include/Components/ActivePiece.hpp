@@ -24,6 +24,7 @@ namespace Tetris
 
         void Spawn(ETetromino type);
         [[nodiscard]] bool IsActive() const noexcept { return m_active; }
+        [[nodiscard]] ETetromino GetType() const noexcept { return m_type; }
 
     private:
         void HandleInput();

@@ -16,7 +16,9 @@ namespace GameLibrary
         Escape,
         F5,
         X,
-        Z
+        Z,
+        C,
+        LShift
     };
 
     class IInputProvider

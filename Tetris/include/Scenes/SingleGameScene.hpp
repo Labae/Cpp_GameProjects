@@ -6,7 +6,6 @@
 #define SINGLEGAMESCENE_HPP
 
 #include "Components/ActivePiece.hpp"
-#include "Configs/TetrisConfig.hpp"
 #include "Scene/Scene.hpp"
 
 #include <random>
@@ -25,12 +24,20 @@ namespace Tetris
 
         void OnEnter() override;
         void Update(float deltaTime) override;
+        void Render(GameLibrary::IGraphics& graphics) override;
 
     private:
         void SpawnNewPiece();
+        void Hold();
+        void RenderHoldBox(GameLibrary::IGraphics& graphics) const;
 
         const TetrisConfig* m_tetrisConfig{};
+        GameLibrary::IInputProvider* m_inputProvider{};
         ActivePiece* m_activePiece{};
+        Board* m_board{};
+
+        std::optional<ETetromino> m_holdPiece{};
+        bool m_canHold{true};
 
         std::mt19937 m_rnd{std::random_device{}()};
     };

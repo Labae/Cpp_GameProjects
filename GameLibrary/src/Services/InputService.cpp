@@ -88,6 +88,10 @@ namespace GameLibrary
             return sf::Keyboard::Scan::X;
         case KeyCode::Z:
             return sf::Keyboard::Scan::Z;
+        case KeyCode::C:
+            return sf::Keyboard::Scan::C;
+        case KeyCode::LShift:
+            return sf::Keyboard::Scan::LShift;
         default:
             return sf::Keyboard::Scan::Unknown;
         }

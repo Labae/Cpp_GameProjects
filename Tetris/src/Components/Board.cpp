@@ -125,6 +125,7 @@ namespace Tetris
                     const int32_t px = m_config.boardX + x * m_config.cellSize;
                     const int32_t py = m_config.boardY + y * m_config.cellSize;
                     graphics.FillRect(px, py, m_config.cellSize, m_config.cellSize, color);
+                    graphics.DrawRect(px, py, m_config.cellSize, m_config.cellSize, sf::Color::Black);
                 }
             }
         }
