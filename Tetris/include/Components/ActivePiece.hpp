@@ -1,23 +1,26 @@
-//
-// Created by Labae on 3/1/26.
-//
+#pragma once
 
-#ifndef ACTIVEPIECE_HPP
-#define ACTIVEPIECE_HPP
 #include "Components/Component.hpp"
 #include "Data/Tetromino.hpp"
-#include "Interfaces/IInputProvider.hpp"
+
+#include <cstdint>
+
+namespace GameLibrary
+{
+    class IInputProvider;
+    class EventService;
+}
 
 namespace Tetris
 {
     struct TetrisConfig;
     class Board;
 
-    class ActivePiece final : public GameLibrary::Component
+    class ActivePiece : public GameLibrary::Component
     {
     public:
         ActivePiece(GameLibrary::Actor* owner, const TetrisConfig& config, Board& board,
-                    GameLibrary::IInputProvider& input);
+                    GameLibrary::IInputProvider& input, GameLibrary::EventService& eventService);
 
         void Update(float deltaTime) override;
         void Render(GameLibrary::IGraphics& graphics) override;
@@ -34,14 +37,14 @@ namespace Tetris
         void HardDrop();
         void RotateCW();
         void RotateCCW();
-
         void Lock();
 
-        [[nodiscard]] bool CanMove(int32_t newX, int32_t newY, int32_t newRotation) const noexcept;
+        [[nodiscard]] bool CanMove(int32_t newX, int32_t newY, int32_t newRotation) const;
 
         const TetrisConfig& m_config;
         Board& m_board;
         GameLibrary::IInputProvider& m_input;
+        GameLibrary::EventService& m_eventService;
 
         ETetromino m_type{ETetromino::I};
         int32_t m_gridX{};
@@ -53,5 +56,3 @@ namespace Tetris
         float m_fallInterval{1.0f};
     };
 } // namespace Tetris
-
-#endif // ACTIVEPIECE_HPP

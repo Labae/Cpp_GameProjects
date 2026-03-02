@@ -1,11 +1,8 @@
-//
-// Created by Labae on 1/12/26.
-//
-
-#ifndef APPLICATION_HPP
-#define APPLICATION_HPP
+#pragma once
 
 #include "Core/Engine.hpp"
+
+#include <cstdint>
 
 namespace Tetris
 {
@@ -25,10 +22,8 @@ namespace Tetris
     private:
         void RegisterScenes();
         void LoadResources();
-        void LoadConfigs();
+        void LoadConfig();
 
         GameLibrary::Engine m_engine{};
     };
 } // namespace Tetris
-
-#endif // APPLICATION_HPP

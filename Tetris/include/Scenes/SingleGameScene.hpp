@@ -1,12 +1,8 @@
-//
-// Created by Labae on 3/1/26.
-//
+#pragma once
 
-#ifndef SINGLEGAMESCENE_HPP
-#define SINGLEGAMESCENE_HPP
-
-#include "Components/ActivePiece.hpp"
+#include "Data/Tetromino.hpp"
 #include "Scene/Scene.hpp"
+#include "Services/EventService.hpp"
 
 #include <random>
 
@@ -17,6 +13,11 @@ namespace GameLibrary
 
 namespace Tetris
 {
+    struct TetrisConfig;
+    class Board;
+    class ActivePiece;
+    class HoldBox;
+
     class SingleGameScene final : public GameLibrary::Scene
     {
     public:
@@ -24,23 +25,22 @@ namespace Tetris
 
         void OnEnter() override;
         void Update(float deltaTime) override;
-        void Render(GameLibrary::IGraphics& graphics) override;
 
     private:
         void SpawnNewPiece();
         void Hold();
-        void RenderHoldBox(GameLibrary::IGraphics& graphics) const;
+        void OnPieceLocked(const struct PieceLockedEvent& event);
 
         const TetrisConfig* m_tetrisConfig{};
-        GameLibrary::IInputProvider* m_inputProvider{};
-        ActivePiece* m_activePiece{};
+        GameLibrary::IInputProvider* m_input{};
+        GameLibrary::EventService* m_eventService{};
+
         Board* m_board{};
+        ActivePiece* m_activePiece{};
+        HoldBox* m_holdBox{};
 
-        std::optional<ETetromino> m_holdPiece{};
-        bool m_canHold{true};
+        GameLibrary::SubscriptionToken m_pieceLockedToken{};
 
-        std::mt19937 m_rnd{std::random_device{}()};
+        std::mt19937 m_rng{std::random_device{}()};
     };
 } // namespace Tetris
-
-#endif // SINGLEGAMESCENE_HPP

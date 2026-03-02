@@ -1,7 +1,23 @@
-# Game Configuration
+# Tetris Configuration
+
+# Board
 boardWidth: 10
 boardHeight: 20
 cellSize: 32
 boardX: 240
 boardY: 80
-holdNextBoxSize: 128
+
+# Hold Box
+holdBoxX: 60
+holdBoxY: 100
+holdBoxSize: 128
+holdBoxPadding: 10
+
+# Next Box
+nextBoxX: 560
+nextBoxY: 100
+nextBoxSize: 128
+nextBoxPadding: 10
+
+# Gameplay
+fallInterval: 1.0

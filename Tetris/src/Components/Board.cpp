@@ -1,17 +1,14 @@
-//
-// Created by Labae on 3/1/26.
-//
-
 #include "Components/Board.hpp"
 
-#include "Data/Tetromino.hpp"
+#include "Config/TetrisConfig.hpp"
 #include "Interfaces/IGraphics.hpp"
+
+#include <algorithm>
 
 namespace
 {
-    constexpr sf::Color COLOR_BACKGROUND{20, 20, 20, 255};
     constexpr sf::Color COLOR_GRID{40, 40, 40, 255};
-    constexpr sf::Color COLOR_BORDER{100, 100, 100, 255};
+    constexpr sf::Color COLOR_BACKGROUND{20, 20, 20, 255};
 } // namespace
 
 namespace Tetris
@@ -19,7 +16,7 @@ namespace Tetris
     Board::Board(GameLibrary::Actor* owner, const TetrisConfig& config)
         : Component(owner)
         , m_config(config)
-        , m_cells(config.boardHeight, std::vector<uint8_t>(config.boardWidth, 0))
+        , m_cells(config.boardHeight, std::vector<Cell>(config.boardWidth))
         , m_boardPixelWidth(config.cellSize * config.boardWidth)
         , m_boardPixelHeight(config.cellSize * config.boardHeight)
     {
@@ -27,20 +24,38 @@ namespace Tetris
 
     void Board::Render(GameLibrary::IGraphics& graphics)
     {
-        graphics.FillRect(m_config.boardX, m_config.boardY, m_boardPixelWidth, m_boardPixelHeight, COLOR_BACKGROUND);
+        graphics.FillRect(m_config.boardX, m_config.boardY,
+                          m_boardPixelWidth, m_boardPixelHeight, COLOR_BACKGROUND);
 
-        RenderGrid(graphics);
-        RenderBorder(graphics);
         RenderCells(graphics);
+        RenderGrid(graphics);
     }
 
     void Board::Clear()
     {
         for (auto& row : m_cells)
         {
-            std::ranges::fill(row, 0);
+            std::ranges::fill(row, Cell{});
         }
     }
+
+    bool Board::IsCellEmpty(const int32_t x, const int32_t y) const noexcept
+    {
+        if (x < 0 || x >= m_config.boardWidth || y < 0 || y >= m_config.boardHeight)
+        {
+            return false;
+        }
+        return m_cells[y][x].IsEmpty();
+    }
+
+    void Board::SetCell(const int32_t x, const int32_t y, const Cell& cell) noexcept
+    {
+        if (x >= 0 && x < m_config.boardWidth && y >= 0 && y < m_config.boardHeight)
+        {
+            m_cells[y][x] = cell;
+        }
+    }
+
     int32_t Board::ClearFullLines()
     {
         int32_t linesCleared = 0;
@@ -50,7 +65,7 @@ namespace Tetris
             bool isFull = true;
             for (int32_t x = 0; x < m_config.boardWidth; ++x)
             {
-                if (m_cells[y][x] == 0)
+                if (m_cells[y][x].IsEmpty())
                 {
                     isFull = false;
                     break;
@@ -66,30 +81,12 @@ namespace Tetris
                     m_cells[row] = m_cells[row - 1];
                 }
 
-                std::ranges::fill(m_cells[0], 0);
+                std::ranges::fill(m_cells[0], Cell{});
                 ++y;
             }
         }
 
         return linesCleared;
-    }
-
-    bool Board::IsCellEmpty(const int32_t x, const int32_t y) const noexcept
-    {
-        if (x < 0 || x >= m_config.boardWidth || y < 0 || y >= m_config.boardHeight)
-        {
-            return false;
-        }
-
-        return m_cells[y][x] == 0;
-    }
-
-    void Board::SetCell(const int32_t x, const int32_t y, const uint8_t value) noexcept
-    {
-        if (x >= 0 && x < m_config.boardWidth && y >= 0 && y < m_config.boardHeight)
-        {
-            m_cells[y][x] = value;
-        }
     }
 
     void Board::RenderGrid(GameLibrary::IGraphics& graphics) const
@@ -107,26 +104,15 @@ namespace Tetris
         }
     }
 
-    void Board::RenderBorder(GameLibrary::IGraphics& graphics) const
-    {
-        graphics.DrawRect(m_config.boardX, m_config.boardY, m_boardPixelWidth, m_boardPixelHeight, COLOR_BORDER);
-    }
-
     void Board::RenderCells(GameLibrary::IGraphics& graphics) const
     {
         for (int32_t y = 0; y < m_config.boardHeight; ++y)
         {
             for (int32_t x = 0; x < m_config.boardWidth; ++x)
             {
-                if (const uint8_t cell = m_cells[y][x]; cell > 0)
-                {
-                    const auto type = static_cast<ETetromino>(cell - 1);
-                    const auto& color = GetTetromino(type).color;
-                    const int32_t px = m_config.boardX + x * m_config.cellSize;
-                    const int32_t py = m_config.boardY + y * m_config.cellSize;
-                    graphics.FillRect(px, py, m_config.cellSize, m_config.cellSize, color);
-                    graphics.DrawRect(px, py, m_config.cellSize, m_config.cellSize, sf::Color::Black);
-                }
+                const int32_t px = m_config.boardX + x * m_config.cellSize;
+                const int32_t py = m_config.boardY + y * m_config.cellSize;
+                m_cells[y][x].Render(graphics, px, py, m_config.cellSize);
             }
         }
     }

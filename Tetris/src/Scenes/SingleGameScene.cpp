@@ -1,24 +1,13 @@
-//
-// Created by Labae on 3/1/26.
-//
-
 #include "Scenes/SingleGameScene.hpp"
 
 #include "Components/ActivePiece.hpp"
 #include "Components/Board.hpp"
+#include "Components/HoldBox.hpp"
+#include "Config/TetrisConfig.hpp"
 #include "Core/ServiceContainer.hpp"
-#include "Data/Tetromino.hpp"
+#include "Events/GameEvents.hpp"
 #include "Interfaces/IInputProvider.hpp"
-
-namespace
-{
-    constexpr int32_t HOLD_BOX_X = 60;
-    constexpr int32_t HOLD_BOX_Y = 100;
-    constexpr int32_t HOLD_BOX_PADDING = 10;
-    constexpr sf::Color COLOR_BOX_BG{30, 30, 30, 255};
-    constexpr sf::Color COLOR_BOX_BORDER{100, 100, 100, 255};
-    constexpr sf::Color COLOR_HOLD_DISABLED{100, 100, 100, 128};
-} // namespace
+#include "Services/EventService.hpp"
 
 namespace Tetris
 {
@@ -31,15 +20,25 @@ namespace Tetris
     {
         auto& container = GetContainer();
         m_tetrisConfig = container.Resolve<TetrisConfig>();
-        m_inputProvider = container.Resolve<GameLibrary::IInputProvider>();
+        m_input = container.Resolve<GameLibrary::IInputProvider>();
+        m_eventService = container.Resolve<GameLibrary::EventService>();
 
         // Board
         auto* boardActor = CreateActor();
         m_board = boardActor->AddComponent<Board>(*m_tetrisConfig);
 
-        // Piece
+        // ActivePiece
         auto* pieceActor = CreateActor();
-        m_activePiece = pieceActor->AddComponent<ActivePiece>(*m_tetrisConfig, *m_board, *m_inputProvider);
+        m_activePiece = pieceActor->AddComponent<ActivePiece>(*m_tetrisConfig, *m_board, *m_input, *m_eventService);
+
+        // HoldBox
+        auto* holdActor = CreateActor();
+        m_holdBox = holdActor->AddComponent<HoldBox>(*m_tetrisConfig);
+
+        // 이벤트 구독
+        m_pieceLockedToken = m_eventService->Subscribe<PieceLockedEvent>(
+            [this](const PieceLockedEvent& event) { OnPieceLocked(event); });
+
         SpawnNewPiece();
     }
 
@@ -47,88 +46,44 @@ namespace Tetris
     {
         Scene::Update(deltaTime);
 
-        if (m_inputProvider->IsKeyPressed(GameLibrary::KeyCode::C) or
-            m_inputProvider->IsKeyPressed(GameLibrary::KeyCode::LShift))
+        // 홀드 입력
+        if (m_input->IsKeyPressed(GameLibrary::KeyCode::C) ||
+            m_input->IsKeyPressed(GameLibrary::KeyCode::LShift))
         {
             Hold();
         }
-
-        if (not m_activePiece->IsActive())
-        {
-            m_canHold = true;
-            SpawnNewPiece();
-        }
-    }
-    void SingleGameScene::Render(GameLibrary::IGraphics& graphics)
-    {
-        Scene::Render(graphics);
-        RenderHoldBox(graphics);
     }
 
     void SingleGameScene::SpawnNewPiece()
     {
         std::uniform_int_distribution<int32_t> dist(0, static_cast<int32_t>(ETetromino::Count) - 1);
-        const auto type = static_cast<ETetromino>(dist(m_rnd));
+        const auto type = static_cast<ETetromino>(dist(m_rng));
         m_activePiece->Spawn(type);
     }
 
     void SingleGameScene::Hold()
     {
-        if (not m_canHold or not m_activePiece->IsActive())
+        if (not m_activePiece->IsActive() || not m_holdBox->CanHold())
         {
             return;
         }
 
         const ETetromino currentType = m_activePiece->GetType();
-        if (m_holdPiece.has_value())
+        const auto swapped = m_holdBox->Hold(currentType);
+
+        if (swapped.has_value())
         {
-            // 홀드된 피스와 교체
-            const ETetromino holdType = m_holdPiece.value();
-            m_holdPiece = currentType;
-            m_activePiece->Spawn(holdType);
+            m_activePiece->Spawn(swapped.value());
         }
         else
         {
-            // 첫 홀드
-            m_holdPiece = currentType;
             SpawnNewPiece();
         }
-
-        m_canHold = false;
     }
 
-    void SingleGameScene::RenderHoldBox(GameLibrary::IGraphics& graphics) const
+    void SingleGameScene::OnPieceLocked([[maybe_unused]] const PieceLockedEvent& event)
     {
-        const int32_t boxSize = m_tetrisConfig->holdNextBoxSize;
-
-        graphics.FillRect(HOLD_BOX_X, HOLD_BOX_Y, boxSize, boxSize, COLOR_BOX_BG);
-        graphics.DrawRect(HOLD_BOX_X, HOLD_BOX_Y, boxSize, boxSize, COLOR_BOX_BORDER);
-
-        graphics.DrawLabel("HOLD", HOLD_BOX_X + boxSize / 2, HOLD_BOX_Y - 25, 16, sf::Color::White,
-                           GameLibrary::TextAlign::Center);
-
-        if (not m_holdPiece.has_value())
-        {
-            return;
-        }
-
-        const auto& tetromino = GetTetromino(m_holdPiece.value());
-        const sf::Color color = m_canHold ? tetromino.color : COLOR_HOLD_DISABLED;
-        const int32_t cellSize = boxSize / 5;
-        constexpr int32_t offsetX = HOLD_BOX_X + HOLD_BOX_PADDING;
-        constexpr int32_t offsetY = HOLD_BOX_Y + HOLD_BOX_PADDING;
-
-        for (int32_t row = 0; row < 4; ++row)
-        {
-            for (int32_t col = 0; col < 4; ++col)
-            {
-                if (tetromino.shapes[0][row][col] == 1)
-                {
-                    const int32_t px = offsetX + col * cellSize;
-                    const int32_t py = offsetY + row * cellSize;
-                    graphics.FillRect(px, py, cellSize, cellSize, color);
-                }
-            }
-        }
+        m_holdBox->ResetCanHold();
+        SpawnNewPiece();
     }
 } // namespace Tetris

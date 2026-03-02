@@ -1,12 +1,6 @@
-//
-// Created by Labae on 1/12/26.
-//
-
 #include "Application.hpp"
 
-#include "Configs/TetrisConfig.hpp"
-#include "Constants/Resources.hpp"
-#include "Constants/SceneNames.hpp"
+#include "Config/TetrisConfig.hpp"
 #include "Scene/SceneManager.hpp"
 #include "Scenes/SingleGameScene.hpp"
 #include "Scenes/TitleScene.hpp"
@@ -39,11 +33,11 @@ namespace Tetris
         auto& container = m_engine.GetContainer();
         container.Register<TetrisConfig, TetrisConfig>();
 
-        LoadConfigs();
+        LoadConfig();
         LoadResources();
         RegisterScenes();
 
-        m_engine.GetContainer().Resolve<GameLibrary::SceneManager>()->LoadScene(SceneNames::Title);
+        container.Resolve<GameLibrary::SceneManager>()->LoadScene("Title");
         m_engine.Run();
         m_engine.Shutdown();
 
@@ -54,11 +48,11 @@ namespace Tetris
     {
         auto* sceneManager = m_engine.GetContainer().Resolve<GameLibrary::SceneManager>();
 
-        sceneManager->RegisterSceneFactory(SceneNames::Title,
+        sceneManager->RegisterSceneFactory("Title",
                                            [](const std::string& name, GameLibrary::ServiceContainer& container)
                                            { return std::make_unique<TitleScene>(name, container); });
 
-        sceneManager->RegisterSceneFactory(SceneNames::SingleGame,
+        sceneManager->RegisterSceneFactory("SingleGame",
                                            [](const std::string& name, GameLibrary::ServiceContainer& container)
                                            { return std::make_unique<SingleGameScene>(name, container); });
     }
@@ -72,35 +66,50 @@ namespace Tetris
             return;
         }
 
-        if (not resourceService->LoadFont(Resources::Fonts::Main.Id, Resources::Fonts::Main.Path))
+        if (not resourceService->LoadFont("main", "assets/fonts/NotoSans_Black.ttf"))
         {
             GameLibrary::Logger::Error("Failed to load main font");
         }
     }
 
-    void Application::LoadConfigs()
+    void Application::LoadConfig()
     {
         auto& container = m_engine.GetContainer();
         auto* configService = container.Resolve<GameLibrary::ConfigService>();
-        auto* tetrisConfig = container.Resolve<TetrisConfig>();
+        auto* config = container.Resolve<TetrisConfig>();
 
-        if (not configService || not tetrisConfig)
+        if (not configService || not config)
         {
-            GameLibrary::Logger::Error("Failed to load config services");
+            GameLibrary::Logger::Warning("Failed to load config services");
             return;
         }
 
         if (not configService->LoadFromFile(GAME_CONFIG_PATH))
         {
-            GameLibrary::Logger::Error("Failed to load game config, using defaults");
+            GameLibrary::Logger::Warning("Failed to load game config, using defaults");
             return;
         }
 
-        tetrisConfig->boardWidth = configService->GetInt("boardWidth", tetrisConfig->boardWidth);
-        tetrisConfig->boardHeight = configService->GetInt("boardHeight", tetrisConfig->boardHeight);
-        tetrisConfig->cellSize = configService->GetInt("cellSize", tetrisConfig->cellSize);
-        tetrisConfig->boardX = configService->GetInt("boardX", tetrisConfig->boardX);
-        tetrisConfig->boardY = configService->GetInt("boardY", tetrisConfig->boardY);
-        tetrisConfig->holdNextBoxSize = configService->GetInt("holdNextBoxSize", tetrisConfig->holdNextBoxSize);
+        // Board
+        config->boardWidth = configService->GetInt("boardWidth", config->boardWidth);
+        config->boardHeight = configService->GetInt("boardHeight", config->boardHeight);
+        config->cellSize = configService->GetInt("cellSize", config->cellSize);
+        config->boardX = configService->GetInt("boardX", config->boardX);
+        config->boardY = configService->GetInt("boardY", config->boardY);
+
+        // Hold Box
+        config->holdBoxX = configService->GetInt("holdBoxX", config->holdBoxX);
+        config->holdBoxY = configService->GetInt("holdBoxY", config->holdBoxY);
+        config->holdBoxSize = configService->GetInt("holdBoxSize", config->holdBoxSize);
+        config->holdBoxPadding = configService->GetInt("holdBoxPadding", config->holdBoxPadding);
+
+        // Next Box
+        config->nextBoxX = configService->GetInt("nextBoxX", config->nextBoxX);
+        config->nextBoxY = configService->GetInt("nextBoxY", config->nextBoxY);
+        config->nextBoxSize = configService->GetInt("nextBoxSize", config->nextBoxSize);
+        config->nextBoxPadding = configService->GetInt("nextBoxPadding", config->nextBoxPadding);
+
+        // Gameplay
+        config->fallInterval = configService->GetFloat("fallInterval", config->fallInterval);
     }
 } // namespace Tetris
