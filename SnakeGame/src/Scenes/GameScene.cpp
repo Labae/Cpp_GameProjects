@@ -12,6 +12,9 @@
 #include "Data/GameData.hpp"
 #include "Interfaces/IInputProvider.hpp"
 #include "Scene/SceneManager.hpp"
+#include "Scenes/States/PauseMenuState.hpp"
+#include "Scenes/States/PlayingState.hpp"
+#include "Scenes/States/SettingsState.hpp"
 #include "Services/AudioService.hpp"
 #include "Services/ConfigService.hpp"
 #include "Services/EventService.hpp"
@@ -30,10 +33,6 @@ GameScene::~GameScene() = default;
 
 void GameScene::OnEnter()
 {
-    m_pauseState = PauseState::None;
-    m_menuIndex = 0;
-    m_settingsIndex = 0;
-
     auto& container = GetContainer();
     m_fxSystem = container.Resolve<GameLibrary::FxService>();
     m_input = container.Resolve<GameLibrary::IInputProvider>();
@@ -60,6 +59,12 @@ void GameScene::OnEnter()
 
         GameLibrary::Logger::Info("BGM loaded + " + std::to_string(m_audioService->GetBGMVolume()));
     }
+
+    // 상태 등록 및 초기 상태 설정
+    m_stateMachine.AddState<PlayingState>();
+    m_stateMachine.AddState<PauseMenuState>();
+    m_stateMachine.AddState<SettingsState>();
+    m_stateMachine.ChangeState<PlayingState>();
 }
 
 void GameScene::OnExit()
@@ -79,141 +84,55 @@ void GameScene::OnExit()
     m_fxSystem->Clear();
 }
 
-void GameScene::Update(float deltaTime)
+void GameScene::Update(const float deltaTime)
 {
-    if (!m_input)
+    if (not m_input)
     {
         return;
     }
 
-    switch (m_pauseState)
+    m_stateMachine.Update(deltaTime);
+}
+
+void GameScene::Render(GameLibrary::IGraphics& graphics)
+{
+    if (m_fxSystem)
     {
-    case PauseState::None:
-        if (m_input->IsKeyPressed(GameLibrary::KeyCode::Escape))
-        {
-            m_pauseState = PauseState::Menu;
-            m_menuIndex = 0;
-        }
-        else
-        {
-            if (m_playerController)
-            {
-                m_playerController->Update(deltaTime);
-            }
+        auto [sx, sy] = m_fxSystem->GetShakeOffset();
+        graphics.SetOffset(sx, sy);
+    }
 
-            Scene::Update(deltaTime);
-            if (m_fxSystem)
-            {
-                m_fxSystem->Update(deltaTime);
-            }
-        }
-        break;
+    Scene::Render(graphics);
 
-    case PauseState::Menu:
-        UpdatePauseMenu();
-        break;
+    graphics.ResetOffset();
 
-    case PauseState::Settings:
-        UpdateSettings();
-        break;
+    if (m_fxSystem)
+    {
+        m_fxSystem->Render(graphics);
+    }
+
+    if (m_stateMachine.IsInState<PauseMenuState>())
+    {
+        RenderPauseMenu(graphics);
+    }
+    else if (m_stateMachine.IsInState<SettingsState>())
+    {
+        RenderSettings(graphics);
     }
 }
 
-void GameScene::UpdatePauseMenu()
+void GameScene::UpdateActors(const float deltaTime)
 {
-    if (m_input->IsKeyPressed(GameLibrary::KeyCode::Up))
+    if (m_playerController)
     {
-        m_menuIndex = (m_menuIndex + 2) % 3;
-    }
-    if (m_input->IsKeyPressed(GameLibrary::KeyCode::Down))
-    {
-        m_menuIndex = (m_menuIndex + 1) % 3;
-    }
-    if (m_input->IsKeyPressed(GameLibrary::KeyCode::Enter) || m_input->IsKeyPressed(GameLibrary::KeyCode::Space))
-    {
-        switch (m_menuIndex)
-        {
-        case 0: // Resume
-        {
-            m_pauseState = PauseState::None;
-            break;
-        }
-        case 1: // Settings
-        {
-            m_pauseState = PauseState::Settings;
-            m_settingsIndex = 0;
-            break;
-        }
-        case 2: // Quit
-        {
-            if (auto* sceneManager = GetContainer().Resolve<GameLibrary::SceneManager>())
-            {
-                sceneManager->LoadScene("Title");
-            }
-            break;
-        }
-        default:;
-        }
-    }
-    if (m_input->IsKeyPressed(GameLibrary::KeyCode::Escape))
-    {
-        m_pauseState = PauseState::None;
-    }
-}
-
-void GameScene::UpdateSettings()
-{
-    if (m_input->IsKeyPressed(GameLibrary::KeyCode::Up))
-    {
-        m_settingsIndex = (m_settingsIndex + 1) % 2;
-    }
-    if (m_input->IsKeyPressed(GameLibrary::KeyCode::Down))
-    {
-        m_settingsIndex = (m_settingsIndex + 1) % 2;
+        m_playerController->Update(deltaTime);
     }
 
-    constexpr float delta = 0.1f;
-    bool changed = false;
+    Scene::Update(deltaTime);
 
-    if (m_input->IsKeyPressed(GameLibrary::KeyCode::Left))
+    if (m_fxSystem)
     {
-        if (m_audioService)
-        {
-            if (m_settingsIndex == 0)
-            {
-                m_audioService->SetBGMVolume(m_audioService->GetBGMVolume() - delta);
-            }
-            else
-            {
-                m_audioService->SetSFXVolume(m_audioService->GetSFXVolume() - delta);
-            }
-            changed = true;
-        }
-    }
-    if (m_input->IsKeyPressed(GameLibrary::KeyCode::Right))
-    {
-        if (m_audioService)
-        {
-            if (m_settingsIndex == 0)
-            {
-                m_audioService->SetBGMVolume(m_audioService->GetBGMVolume() + delta);
-            }
-            else
-            {
-                m_audioService->SetSFXVolume(m_audioService->GetSFXVolume() + delta);
-            }
-            changed = true;
-        }
-    }
-
-    if (changed)
-    {
-        SaveSettings();
-    }
-
-    if (m_input->IsKeyPressed(GameLibrary::KeyCode::Escape))
-    {
-        m_pauseState = PauseState::Menu;
+        m_fxSystem->Update(deltaTime);
     }
 }
 
@@ -237,42 +156,15 @@ void GameScene::SaveSettings() const
     }
 }
 
-void GameScene::Render(GameLibrary::IGraphics& graphics)
-{
-    if (m_fxSystem)
-    {
-        auto [sx, sy] = m_fxSystem->GetShakeOffset();
-        graphics.SetOffset(sx, sy);
-    }
-
-    Scene::Render(graphics);
-
-    graphics.ResetOffset();
-
-    if (m_fxSystem)
-    {
-        m_fxSystem->Render(graphics);
-    }
-
-    switch (m_pauseState)
-    {
-    case PauseState::Menu:
-        RenderPauseMenu(graphics);
-        break;
-    case PauseState::Settings:
-        RenderSettings(graphics);
-        break;
-    default:
-        break;
-    }
-}
-
 void GameScene::RenderPauseMenu(GameLibrary::IGraphics& graphics) const
 {
-    if (!m_engineConfig)
+    if (not m_engineConfig)
     {
         return;
     }
+
+    const auto* state = m_stateMachine.GetState<PauseMenuState>();
+    const int32_t menuIndex = state->GetMenuIndex();
 
     const int32_t screenW = m_engineConfig->screenWidth;
     const int32_t screenH = m_engineConfig->screenHeight;
@@ -294,20 +186,23 @@ void GameScene::RenderPauseMenu(GameLibrary::IGraphics& graphics) const
                        GameLibrary::TextAlign::Center);
 
     // 메뉴 항목
+    constexpr const char* items[] = {"Resume", "Settings", "Quit"};
     for (int32_t i = 0; i < 3; ++i)
     {
-        const char* items[] = {"Resume", "Settings", "Quit"};
-        const sf::Color color = (i == m_menuIndex) ? sf::Color(255, 255, 0, 255) : sf::Color(180, 180, 180, 255);
+        const sf::Color color = (i == menuIndex) ? sf::Color(255, 255, 0, 255) : sf::Color(180, 180, 180, 255);
         graphics.DrawLabel(items[i], boxX + boxW / 2, boxY + 70 + i * 35, 24, color, GameLibrary::TextAlign::Center);
     }
 }
 
 void GameScene::RenderSettings(GameLibrary::IGraphics& graphics) const
 {
-    if (!m_engineConfig)
+    if (not m_engineConfig)
     {
         return;
     }
+
+    const auto* state = m_stateMachine.GetState<SettingsState>();
+    const int32_t settingsIndex = state->GetSettingsIndex();
 
     const int32_t screenW = m_engineConfig->screenWidth;
     const int32_t screenH = m_engineConfig->screenHeight;
@@ -337,13 +232,13 @@ void GameScene::RenderSettings(GameLibrary::IGraphics& graphics) const
     constexpr int32_t barH = 20;
 
     // BGM
-    const sf::Color bgmColor = (m_settingsIndex == 0) ? sf::Color(255, 255, 0, 255) : sf::Color(180, 180, 180, 255);
+    const sf::Color bgmColor = (settingsIndex == 0) ? sf::Color(255, 255, 0, 255) : sf::Color(180, 180, 180, 255);
     graphics.DrawLabel("BGM", boxX + 30, boxY + 70, 24, bgmColor, GameLibrary::TextAlign::Left);
     graphics.DrawRect(barX, boxY + 70, barW, barH, sf::Color(100, 100, 100, 255));
     graphics.FillRect(barX, boxY + 70, static_cast<int32_t>(barW * bgmVol), barH, sf::Color(0, 200, 0, 255));
 
     // SFX
-    const sf::Color sfxColor = (m_settingsIndex == 1) ? sf::Color(255, 255, 0, 255) : sf::Color(180, 180, 180, 255);
+    const sf::Color sfxColor = (settingsIndex == 1) ? sf::Color(255, 255, 0, 255) : sf::Color(180, 180, 180, 255);
     graphics.DrawLabel("SFX", boxX + 30, boxY + 110, 24, sfxColor, GameLibrary::TextAlign::Left);
     graphics.DrawRect(barX, boxY + 110, barW, barH, sf::Color(100, 100, 100, 255));
     graphics.FillRect(barX, boxY + 110, static_cast<int32_t>(barW * sfxVol), barH, sf::Color(0, 200, 0, 255));

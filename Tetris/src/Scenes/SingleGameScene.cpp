@@ -3,11 +3,16 @@
 #include "Components/ActivePiece.hpp"
 #include "Components/Board.hpp"
 #include "Components/HoldBox.hpp"
+#include "Components/NextQueue.hpp"
 #include "Config/TetrisConfig.hpp"
+#include "Core/EngineConfig.hpp"
 #include "Core/ServiceContainer.hpp"
 #include "Events/GameEvents.hpp"
 #include "Interfaces/IInputProvider.hpp"
 #include "Scene/SceneManager.hpp"
+#include "Scenes/States/GameOverState.hpp"
+#include "Scenes/States/PausedState.hpp"
+#include "Scenes/States/PlayingState.hpp"
 #include "Services/EventService.hpp"
 
 namespace
@@ -53,60 +58,18 @@ namespace Tetris
         m_lineClearedToken = m_eventService->Subscribe<LinesClearedEvent>([this](const LinesClearedEvent& event)
                                                                           { OnLineCleared(event); });
 
+        // 상태 등록 및 초기 상태 설정
+        m_stateMachine.AddState<PlayingState>();
+        m_stateMachine.AddState<PausedState>();
+        m_stateMachine.AddState<GameOverState>();
+        m_stateMachine.ChangeState<PlayingState>();
+
         SpawnNewPiece();
     }
 
     void SingleGameScene::Update(const float deltaTime)
     {
-        // 게임 종료
-        if (m_isGameOver)
-        {
-            if (m_input->IsKeyPressed(GameLibrary::KeyCode::Escape))
-            {
-                GetContainer().Resolve<GameLibrary::SceneManager>()->LoadScene("Title");
-            }
-            return;
-        }
-
-        // 일시 정지
-        if (m_input->IsKeyPressed(GameLibrary::KeyCode::Escape))
-        {
-            m_isPaused = not m_isPaused;
-            m_pauseMenuIndex = 0;
-            return;
-        }
-
-        if (m_isPaused)
-        {
-            if (m_input->IsKeyPressed(GameLibrary::KeyCode::Up))
-            {
-                m_pauseMenuIndex = (m_pauseMenuIndex + 1) % 2;
-            }
-            if (m_input->IsKeyPressed(GameLibrary::KeyCode::Down))
-            {
-                m_pauseMenuIndex = (m_pauseMenuIndex + 1) % 2;
-            }
-            if (m_input->IsKeyPressed(GameLibrary::KeyCode::Enter))
-            {
-                if (m_pauseMenuIndex == 0)
-                {
-                    m_isPaused = false; // Resume
-                }
-                else
-                {
-                    GetContainer().Resolve<GameLibrary::SceneManager>()->LoadScene("Title");
-                }
-            }
-            return;
-        }
-
-        Scene::Update(deltaTime);
-
-        // 홀드 입력
-        if (m_input->IsKeyPressed(GameLibrary::KeyCode::C) || m_input->IsKeyPressed(GameLibrary::KeyCode::LShift))
-        {
-            Hold();
-        }
+        m_stateMachine.Update(deltaTime);
     }
 
     void SingleGameScene::Render(GameLibrary::IGraphics& graphics)
@@ -120,50 +83,42 @@ namespace Tetris
         const int32_t centerX = m_engineConfig->screenWidth / 2;
         const int32_t centerY = m_engineConfig->screenHeight / 2;
 
-        // 일시정지 메뉴
-        if (m_isPaused)
+        // 일시정지 오버레이
+        if (m_stateMachine.IsInState<PausedState>())
         {
-            // 오버레이
+            const auto* state = m_stateMachine.GetState<PausedState>();
+            const int32_t menuIndex = state->GetMenuIndex();
+
             graphics.FillRect(0, 0, m_engineConfig->screenWidth, m_engineConfig->screenHeight, sf::Color(0, 0, 0, 180));
 
-            // 일시정지 텍스트
             graphics.DrawLabel("PAUSED", centerX, centerY - 80, 48, sf::Color::White, GameLibrary::TextAlign::Center);
-
             graphics.DrawLabel("Resume", centerX, centerY, 24,
-                               m_pauseMenuIndex == 0 ? MENU_SELECTED_COLOR : MENU_NORMAL_COLOR,
+                               menuIndex == 0 ? MENU_SELECTED_COLOR : MENU_NORMAL_COLOR,
                                GameLibrary::TextAlign::Center);
             graphics.DrawLabel("Title", centerX, centerY + 40, 24,
-                               m_pauseMenuIndex == 1 ? MENU_SELECTED_COLOR : MENU_NORMAL_COLOR,
+                               menuIndex == 1 ? MENU_SELECTED_COLOR : MENU_NORMAL_COLOR,
                                GameLibrary::TextAlign::Center);
-
             return;
         }
 
-        // 게임 오버
-        if (m_isGameOver)
+        // 게임 오버 오버레이
+        if (m_stateMachine.IsInState<GameOverState>())
         {
-            // 오버레이
             graphics.FillRect(0, 0, m_engineConfig->screenWidth, m_engineConfig->screenHeight, sf::Color(0, 0, 0, 180));
 
-            // 게임오버 텍스트
             graphics.DrawLabel("GAME OVER", centerX, centerY - 50, 48, sf::Color::Red, GameLibrary::TextAlign::Center);
-
-            // 최종 점수
             graphics.DrawLabel("FINAL SCORE", centerX, centerY + 20, 20, sf::Color::White,
                                GameLibrary::TextAlign::Center);
             graphics.DrawLabel(std::to_string(m_score), centerX, centerY + 55, 36, sf::Color::Yellow,
                                GameLibrary::TextAlign::Center);
-
-            // 안내
             graphics.DrawLabel("Press ESC to return to title", centerX, centerY + 120, 16, sf::Color::Cyan,
                                GameLibrary::TextAlign::Center);
         }
     }
 
-    void SingleGameScene::SpawnNewPiece() const
+    void SingleGameScene::UpdateActors(const float deltaTime)
     {
-        const ETetromino type = m_nextQueue->Pop();
-        m_activePiece->Spawn(type);
+        Scene::Update(deltaTime);
     }
 
     void SingleGameScene::Hold() const
@@ -184,6 +139,12 @@ namespace Tetris
         }
     }
 
+    void SingleGameScene::SpawnNewPiece() const
+    {
+        const ETetromino type = m_nextQueue->Pop();
+        m_activePiece->Spawn(type);
+    }
+
     void SingleGameScene::OnPieceLocked([[maybe_unused]] const PieceLockedEvent& event)
     {
         m_holdBox->ResetCanHold();
@@ -191,7 +152,7 @@ namespace Tetris
         const ETetromino nextType = m_nextQueue->Peek();
         if (not m_board->CanSpawnAt(nextType))
         {
-            m_isGameOver = true;
+            m_stateMachine.ChangeState<GameOverState>();
             m_eventService->Publish(GameOverEvent{});
             return;
         }

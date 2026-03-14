@@ -1,6 +1,8 @@
-#pragma once
+#ifndef GAMESCENE_HPP
+#define GAMESCENE_HPP
 
 #include "Scene/Scene.hpp"
+#include "States/StateMachine.hpp"
 
 #include <memory>
 
@@ -30,24 +32,23 @@ public:
     void Update(float deltaTime) override;
     void Render(GameLibrary::IGraphics& graphics) override;
 
-private:
-    enum class PauseState
-    {
-        None,
-        Menu,
-        Settings
-    };
+    // State에서 접근하는 public 인터페이스
+    [[nodiscard]] GameLibrary::IInputProvider& GetInput() const noexcept { return *m_input; }
+    [[nodiscard]] GameLibrary::StateMachine<GameScene>& GetStateMachine() noexcept { return m_stateMachine; }
+    [[nodiscard]] const GameLibrary::EngineConfig& GetEngineConfig() const noexcept { return *m_engineConfig; }
+    [[nodiscard]] GameLibrary::AudioService* GetAudioService() const noexcept { return m_audioService; }
 
+    void UpdateActors(float deltaTime);
+    void SaveSettings() const;
+
+private:
     void ApplyConfig() const;
     void SetupGame();
-
-    void UpdatePauseMenu();
-    void UpdateSettings();
 
     void RenderPauseMenu(GameLibrary::IGraphics& graphics) const;
     void RenderSettings(GameLibrary::IGraphics& graphics) const;
 
-    void SaveSettings() const;
+    GameLibrary::StateMachine<GameScene> m_stateMachine{*this};
 
     GameLibrary::FxService* m_fxSystem{};
     GameLibrary::IInputProvider* m_input{};
@@ -56,9 +57,7 @@ private:
     GameLibrary::EngineConfig* m_engineConfig{};
     SnakeGame::GameData* m_gameData{};
 
-    PauseState m_pauseState{PauseState::None};
-    int32_t m_menuIndex{};
-    int32_t m_settingsIndex{};
-
     std::unique_ptr<SnakeGame::SnakePlayerController> m_playerController{};
 };
+
+#endif // GAMESCENE_HPP

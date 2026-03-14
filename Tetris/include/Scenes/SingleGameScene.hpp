@@ -1,17 +1,16 @@
 #pragma once
 
-#include "Components/NextQueue.hpp"
-#include "Core/EngineConfig.hpp"
-#include "Data/Tetromino.hpp"
 #include "Scene/Scene.hpp"
 #include "Services/EventService.hpp"
+#include "States/StateMachine.hpp"
 
-#include <random>
+#include <cstdint>
 
 namespace GameLibrary
 {
     class IInputProvider;
-}
+    struct EngineConfig;
+} // namespace GameLibrary
 
 namespace Tetris
 {
@@ -19,6 +18,9 @@ namespace Tetris
     class Board;
     class ActivePiece;
     class HoldBox;
+    class NextQueue;
+    struct PieceLockedEvent;
+    struct LinesClearedEvent;
 
     class SingleGameScene final : public GameLibrary::Scene
     {
@@ -29,14 +31,24 @@ namespace Tetris
         void Update(float deltaTime) override;
         void Render(GameLibrary::IGraphics& graphics) override;
 
+        // State에서 접근하는 public 인터페이스
+        [[nodiscard]] GameLibrary::IInputProvider& GetInput() const noexcept { return *m_input; }
+        [[nodiscard]] GameLibrary::StateMachine<SingleGameScene>& GetStateMachine() noexcept { return m_stateMachine; }
+        [[nodiscard]] const GameLibrary::EngineConfig& GetEngineConfig() const noexcept { return *m_engineConfig; }
+        [[nodiscard]] int32_t GetScore() const noexcept { return m_score; }
+
+        void UpdateActors(float deltaTime);
+        void Hold() const;
+
     private:
         void SpawnNewPiece() const;
-        void Hold() const;
-        void OnPieceLocked(const struct PieceLockedEvent& event);
-        void OnLineCleared(const struct LinesClearedEvent& event);
+        void OnPieceLocked(const PieceLockedEvent& event);
+        void OnLineCleared(const LinesClearedEvent& event);
 
-        const GameLibrary::EngineConfig* m_engineConfig{};
-        const TetrisConfig* m_tetrisConfig{};
+        GameLibrary::StateMachine<SingleGameScene> m_stateMachine{*this};
+
+        GameLibrary::EngineConfig* m_engineConfig{};
+        TetrisConfig* m_tetrisConfig{};
         GameLibrary::IInputProvider* m_input{};
         GameLibrary::EventService* m_eventService{};
 
@@ -45,13 +57,9 @@ namespace Tetris
         HoldBox* m_holdBox{};
         NextQueue* m_nextQueue{};
 
-        GameLibrary::SubscriptionToken m_pieceLockedToken{};
-        GameLibrary::SubscriptionToken m_lineClearedToken{};
-
-        bool m_isGameOver{};
         int32_t m_score{};
 
-        bool m_isPaused{};
-        int32_t m_pauseMenuIndex{}; // 0: Resume, 1: Title
+        GameLibrary::SubscriptionToken m_pieceLockedToken{};
+        GameLibrary::SubscriptionToken m_lineClearedToken{};
     };
 } // namespace Tetris
