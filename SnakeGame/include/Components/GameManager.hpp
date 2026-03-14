@@ -2,6 +2,7 @@
 
 #include "../../../GameLibrary/include/Components/Component.hpp"
 #include "Services/EventService.hpp"
+#include "Time/Timer.hpp"
 
 namespace GameLibrary
 {
@@ -57,5 +58,5 @@ private:
     int32_t m_score{};
     float m_elapsedTime{};
     bool m_isGameOver{};
-    float m_gameOverDelay{};
+    GameLibrary::Timer m_gameOverTimer;
 };

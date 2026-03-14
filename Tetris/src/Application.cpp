@@ -1,18 +1,22 @@
 #include "Application.hpp"
 
 #include "Config/TetrisConfig.hpp"
+#include "Data/GameData.hpp"
 #include "Events/GameEvents.hpp"
 #include "Scene/SceneManager.hpp"
 #include "Scenes/SingleGameScene.hpp"
 #include "Scenes/TitleScene.hpp"
 #include "Services/ConfigService.hpp"
 #include "Services/ResourceService.hpp"
+#include "Services/SaveService.hpp"
 #include "Systems/Logger.hpp"
 
 namespace
 {
     constexpr auto ENGINE_CONFIG_PATH = "engine.yaml";
     constexpr auto GAME_CONFIG_PATH = "game.yaml";
+    constexpr auto SAVE_FILE_PATH = "tetris_save.dat";
+    constexpr auto KEY_HIGH_SCORE = "highScore";
 } // namespace
 
 namespace Tetris
@@ -33,14 +37,18 @@ namespace Tetris
 
         auto& container = m_engine.GetContainer();
         container.Register<TetrisConfig, TetrisConfig>();
+        container.Register<GameData, GameData>();
 
         LoadConfig();
+        LoadGameData();
         LoadResources();
         RegisterScenes();
         SubscribeEvents();
 
         container.Resolve<GameLibrary::SceneManager>()->LoadScene("Title");
         m_engine.Run();
+
+        SaveGameData();
         m_engine.Shutdown();
 
         return 0;
@@ -130,5 +138,43 @@ namespace Tetris
         config->lineScores[1] = configService->GetInt("scoreDouble", config->lineScores[1]);
         config->lineScores[2] = configService->GetInt("scoreTriple", config->lineScores[2]);
         config->lineScores[3] = configService->GetInt("scoreTetris", config->lineScores[3]);
+    }
+
+    void Application::LoadGameData()
+    {
+        auto& container = m_engine.GetContainer();
+        auto* saveService = container.Resolve<GameLibrary::SaveService>();
+        auto* gameData = container.Resolve<GameData>();
+
+        if (not saveService || not gameData)
+        {
+            return;
+        }
+
+        if (not saveService->LoadFromFile(SAVE_FILE_PATH))
+        {
+            GameLibrary::Logger::Info("No save file found, using defaults");
+        }
+
+        gameData->highScore = saveService->GetInt(KEY_HIGH_SCORE, 0);
+    }
+
+    void Application::SaveGameData()
+    {
+        auto& container = m_engine.GetContainer();
+        auto* saveService = container.Resolve<GameLibrary::SaveService>();
+        auto* gameData = container.Resolve<GameData>();
+
+        if (not saveService || not gameData)
+        {
+            return;
+        }
+
+        saveService->SetInt(KEY_HIGH_SCORE, gameData->highScore);
+
+        if (not saveService->SaveToFile(SAVE_FILE_PATH))
+        {
+            GameLibrary::Logger::Error("Failed to save game data");
+        }
     }
 } // namespace Tetris

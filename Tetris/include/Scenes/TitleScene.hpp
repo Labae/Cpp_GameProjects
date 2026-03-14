@@ -5,6 +5,7 @@
 #ifndef TITLESCENE_HPP
 #define TITLESCENE_HPP
 #include "Scene/Scene.hpp"
+#include "Time/Timer.hpp"
 
 namespace GameLibrary
 {
@@ -45,7 +46,7 @@ namespace Tetris
 
         EMenuItem m_selectedMenu{EMenuItem::SinglePlay};
 
-        float m_blinkTimer{};
+        GameLibrary::Timer m_blinkTimer;
         bool m_showCursor{true};
     };
 } // namespace Tetris

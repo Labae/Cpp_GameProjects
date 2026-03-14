@@ -6,7 +6,11 @@
 #include "Interfaces/IInputProvider.hpp"
 #include "Scene/SceneManager.hpp"
 
-TitleScene::TitleScene(const std::string& name, GameLibrary::ServiceContainer& container) : Scene(name, container) {}
+TitleScene::TitleScene(const std::string& name, GameLibrary::ServiceContainer& container)
+    : Scene(name, container)
+    , m_blinkTimer(0.5f, [this]() { m_showText = !m_showText; })
+{
+}
 
 void TitleScene::OnEnter()
 {
@@ -18,12 +22,7 @@ void TitleScene::OnEnter()
 
 void TitleScene::Update(const float deltaTime)
 {
-    m_blinkTimer += deltaTime;
-    if (m_blinkTimer >= 0.5f)
-    {
-        m_blinkTimer = 0.0f;
-        m_showText = !m_showText;
-    }
+    m_blinkTimer.Update(deltaTime);
 
     if (m_input->IsKeyPressed(GameLibrary::KeyCode::Space))
     {

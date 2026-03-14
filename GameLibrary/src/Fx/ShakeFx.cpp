@@ -1,32 +1,28 @@
 #include "Fx/ShakeFx.hpp"
 
-#include <chrono>
-#include <random>
+#include "Utility/Random.hpp"
 
 namespace GameLibrary
 {
-    ShakeFx::ShakeFx(float intensity, float duration) : m_intensity(intensity), m_duration(duration) {}
-
-    void ShakeFx::Update(float deltaTime)
+    ShakeFx::ShakeFx(const float intensity, const float duration)
+        : m_tween(intensity, 0.0f, duration, EaseType::Linear,
+                  [this](const float value)
+                  {
+                      m_offsetX = static_cast<int32_t>(Random::Range(-value, value));
+                      m_offsetY = static_cast<int32_t>(Random::Range(-value, value));
+                  },
+                  [this]()
+                  {
+                      m_finished = true;
+                      m_offsetX = 0;
+                      m_offsetY = 0;
+                  })
     {
-        m_elapsed += deltaTime;
+    }
 
-        if (m_elapsed >= m_duration)
-        {
-            m_finished = true;
-            m_offsetX = 0;
-            m_offsetY = 0;
-            return;
-        }
-
-        const float ratio = 1.0f - (m_elapsed / m_duration);
-        const float currentIntensity = m_intensity * ratio;
-
-        static std::mt19937 gen{std::random_device{}()};
-        std::uniform_real_distribution<float> dist(-currentIntensity, currentIntensity);
-
-        m_offsetX = static_cast<int32_t>(dist(gen));
-        m_offsetY = static_cast<int32_t>(dist(gen));
+    void ShakeFx::Update(const float deltaTime)
+    {
+        m_tween.Update(deltaTime);
     }
 
     void ShakeFx::Render([[maybe_unused]] IGraphics& graphics) {}

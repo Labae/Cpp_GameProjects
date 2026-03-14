@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene/Scene.hpp"
+#include "Time/Timer.hpp"
 
 namespace GameLibrary
 {
@@ -23,6 +24,6 @@ private:
     GameLibrary::SceneManager* m_sceneManager{};
     const GameLibrary::EngineConfig* m_engineConfig{};
 
-    float m_blinkTimer{};
+    GameLibrary::Timer m_blinkTimer;
     bool m_showText{true};
 };

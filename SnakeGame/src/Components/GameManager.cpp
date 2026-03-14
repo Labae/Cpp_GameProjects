@@ -28,7 +28,9 @@ GameManager::GameManager(GameLibrary::Actor* owner, GameLibrary::Actor& snakeAct
     , m_gameData(gameData)
     , m_fxSystem(fxSystem)
     , m_snakeActor(snakeActor)
-    , m_gameOverDelay(gameConfig.gameOverDelay)
+    , m_gameOverTimer(gameConfig.gameOverDelay,
+                      [this]() { m_sceneManager.LoadScene("Result"); },
+                      GameLibrary::TimerMode::OneShot)
 {
 }
 
@@ -51,11 +53,7 @@ void GameManager::Update(const float deltaTime)
     }
     else
     {
-        m_gameOverDelay -= deltaTime;
-        if (m_gameOverDelay <= 0.0f)
-        {
-            m_sceneManager.LoadScene("Result");
-        }
+        m_gameOverTimer.Update(deltaTime);
     }
 }
 

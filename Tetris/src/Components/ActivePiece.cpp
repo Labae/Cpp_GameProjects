@@ -4,20 +4,31 @@
 #include "Config/TetrisConfig.hpp"
 #include "Data/Cell.hpp"
 #include "Events/GameEvents.hpp"
+#include "Input/InputActionMap.hpp"
 #include "Interfaces/IGraphics.hpp"
-#include "Interfaces/IInputProvider.hpp"
 #include "Services/EventService.hpp"
 
 namespace Tetris
 {
     ActivePiece::ActivePiece(GameLibrary::Actor* owner, const TetrisConfig& config, Board& board,
-                             GameLibrary::IInputProvider& input, GameLibrary::EventService& eventService)
+                             GameLibrary::InputActionMap& actionMap, GameLibrary::EventService& eventService)
         : Component(owner)
         , m_config(config)
         , m_board(board)
-        , m_input(input)
+        , m_actionMap(actionMap)
         , m_eventService(eventService)
-        , m_fallInterval(config.fallInterval)
+        , m_fallTimer(config.fallInterval,
+                      [this]()
+                      {
+                          if (CanMove(m_gridX, m_gridY + 1, m_rotation))
+                          {
+                              ++m_gridY;
+                          }
+                          else
+                          {
+                              Lock();
+                          }
+                      })
     {
     }
 
@@ -29,46 +40,32 @@ namespace Tetris
         }
 
         HandleInput();
-
-        m_fallTimer += deltaTime;
-        if (m_fallTimer >= m_fallInterval)
-        {
-            m_fallTimer = 0.0f;
-
-            if (CanMove(m_gridX, m_gridY + 1, m_rotation))
-            {
-                ++m_gridY;
-            }
-            else
-            {
-                Lock();
-            }
-        }
+        m_fallTimer.Update(deltaTime);
     }
 
     void ActivePiece::HandleInput()
     {
-        if (m_input.IsKeyPressed(GameLibrary::KeyCode::Left))
+        if (m_actionMap.IsPressed("MoveLeft"))
         {
             MoveLeft();
         }
-        if (m_input.IsKeyPressed(GameLibrary::KeyCode::Right))
+        if (m_actionMap.IsPressed("MoveRight"))
         {
             MoveRight();
         }
-        if (m_input.IsKeyDown(GameLibrary::KeyCode::Down))
+        if (m_actionMap.IsDown("SoftDrop"))
         {
             SoftDrop();
         }
-        if (m_input.IsKeyPressed(GameLibrary::KeyCode::Space))
+        if (m_actionMap.IsPressed("HardDrop"))
         {
             HardDrop();
         }
-        if (m_input.IsKeyPressed(GameLibrary::KeyCode::Up) || m_input.IsKeyPressed(GameLibrary::KeyCode::X))
+        if (m_actionMap.IsPressed("RotateCW"))
         {
             RotateCW();
         }
-        if (m_input.IsKeyPressed(GameLibrary::KeyCode::Z))
+        if (m_actionMap.IsPressed("RotateCCW"))
         {
             RotateCCW();
         }
@@ -112,7 +109,7 @@ namespace Tetris
         m_gridX = (m_config.boardWidth - 4) / 2;
         m_gridY = 0;
         m_rotation = 0;
-        m_fallTimer = 0.0f;
+        m_fallTimer.Reset();
         m_active = true;
     }
 
@@ -137,7 +134,7 @@ namespace Tetris
         if (CanMove(m_gridX, m_gridY + 1, m_rotation))
         {
             ++m_gridY;
-            m_fallTimer = 0.0f;
+            m_fallTimer.Reset();
         }
     }
 

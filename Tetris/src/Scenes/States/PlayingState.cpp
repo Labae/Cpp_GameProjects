@@ -4,7 +4,7 @@
 
 #include "Scenes/States/PlayingState.hpp"
 
-#include "Interfaces/IInputProvider.hpp"
+#include "Input/InputActionMap.hpp"
 #include "Scenes/SingleGameScene.hpp"
 #include "Scenes/States/PausedState.hpp"
 #include "States/StateMachine.hpp"
@@ -13,9 +13,9 @@ namespace Tetris
 {
     void PlayingState::Update(SingleGameScene& scene, [[maybe_unused]] const float deltaTime)
     {
-        const auto& input = scene.GetInput();
+        auto& actionMap = scene.GetActionMap();
 
-        if (input.IsKeyPressed(GameLibrary::KeyCode::Escape))
+        if (actionMap.IsPressed("Pause"))
         {
             scene.GetStateMachine().ChangeState<PausedState>();
             return;
@@ -23,7 +23,7 @@ namespace Tetris
 
         scene.UpdateActors(deltaTime);
 
-        if (input.IsKeyPressed(GameLibrary::KeyCode::C) || input.IsKeyPressed(GameLibrary::KeyCode::LShift))
+        if (actionMap.IsPressed("Hold"))
         {
             scene.Hold();
         }

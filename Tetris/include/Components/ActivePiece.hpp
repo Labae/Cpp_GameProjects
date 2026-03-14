@@ -2,12 +2,13 @@
 
 #include "Components/Component.hpp"
 #include "Data/Tetromino.hpp"
+#include "Time/Timer.hpp"
 
 #include <cstdint>
 
 namespace GameLibrary
 {
-    class IInputProvider;
+    class InputActionMap;
     class EventService;
 }
 
@@ -20,7 +21,7 @@ namespace Tetris
     {
     public:
         ActivePiece(GameLibrary::Actor* owner, const TetrisConfig& config, Board& board,
-                    GameLibrary::IInputProvider& input, GameLibrary::EventService& eventService);
+                    GameLibrary::InputActionMap& actionMap, GameLibrary::EventService& eventService);
 
         void Update(float deltaTime) override;
         void Render(GameLibrary::IGraphics& graphics) override;
@@ -44,7 +45,7 @@ namespace Tetris
 
         const TetrisConfig& m_config;
         Board& m_board;
-        GameLibrary::IInputProvider& m_input;
+        GameLibrary::InputActionMap& m_actionMap;
         GameLibrary::EventService& m_eventService;
 
         ETetromino m_type{ETetromino::I};
@@ -53,7 +54,6 @@ namespace Tetris
         int32_t m_rotation{};
         bool m_active{};
 
-        float m_fallTimer{};
-        float m_fallInterval{1.0f};
+        GameLibrary::Timer m_fallTimer;
     };
 } // namespace Tetris

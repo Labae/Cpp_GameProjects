@@ -2,6 +2,7 @@
 
 #include "Fx.hpp"
 #include "Interfaces/IGraphics.hpp"
+#include "Time/Tween.hpp"
 
 namespace GameLibrary
 {
@@ -17,10 +18,7 @@ namespace GameLibrary
         [[nodiscard]] int32_t GetOffsetY() const noexcept { return m_offsetY; }
 
     private:
-        float m_intensity{};
-        float m_duration{};
-        float m_elapsed{};
-
+        Tween m_tween;
         int32_t m_offsetX{};
         int32_t m_offsetY{};
     };

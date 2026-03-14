@@ -25,6 +25,8 @@ namespace Tetris
         void SubscribeEvents();
         void LoadResources();
         void LoadConfig();
+        void LoadGameData();
+        void SaveGameData();
 
         GameLibrary::Engine m_engine{};
         GameLibrary::SubscriptionToken m_quitToken{};

@@ -52,7 +52,9 @@ namespace Tetris
         };
     } // namespace
 
-    TitleScene::TitleScene(const std::string& name, GameLibrary::ServiceContainer& container) : Scene(name, container)
+    TitleScene::TitleScene(const std::string& name, GameLibrary::ServiceContainer& container)
+        : Scene(name, container)
+        , m_blinkTimer(CURSOR_BLINK_INTERVAL, [this]() { m_showCursor = !m_showCursor; })
     {
     }
 
@@ -70,12 +72,7 @@ namespace Tetris
     void TitleScene::Update(const float deltaTime)
     {
         // 커서 깜빡임
-        m_blinkTimer += deltaTime;
-        if (m_blinkTimer >= CURSOR_BLINK_INTERVAL)
-        {
-            m_blinkTimer = 0.0f;
-            m_showCursor = !m_showCursor;
-        }
+        m_blinkTimer.Update(deltaTime);
 
         // 메뉴 이동
         if (m_input->IsKeyPressed(GameLibrary::KeyCode::Up))

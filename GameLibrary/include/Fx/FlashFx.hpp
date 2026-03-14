@@ -2,6 +2,7 @@
 
 #include "Fx.hpp"
 #include "Interfaces/IGraphics.hpp"
+#include "Time/Tween.hpp"
 
 #include <SFML/Graphics/Color.hpp>
 
@@ -19,8 +20,8 @@ namespace GameLibrary
         int32_t m_screenWidth{};
         int32_t m_screenHeight{};
         sf::Color m_color{};
-        float m_duration{};
         int32_t m_count{};
-        float m_elapsed{};
+        float m_alpha{};
+        Tween m_tween;
     };
 } // namespace GameLibrary

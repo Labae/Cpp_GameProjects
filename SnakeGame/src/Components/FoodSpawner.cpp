@@ -13,8 +13,7 @@
 #include "Scene/Scene.hpp"
 #include "Services/PhysicsService.hpp"
 
-#include <chrono>
-#include <random>
+#include "Utility/Random.hpp"
 
 FoodSpawner::FoodSpawner(GameLibrary::Actor* owner, GameLibrary::Scene& scene, GameLibrary::EventService& eventSystem,
                          const GameLibrary::EngineConfig& engineConfig, const SnakeGame::SnakeGameConfig& gameConfig)
@@ -80,9 +79,7 @@ void FoodSpawner::OnFoodEaten([[maybe_unused]] const FoodEatenEvent& event)
 {
     SpawnFood();
 
-    static std::mt19937 gen{std::random_device{}()};
-    std::uniform_int_distribution<int32_t> chanceDist(1, 10);
-    if (const int32_t chance = chanceDist(gen); chance <= 2)
+    if (const int32_t chance = GameLibrary::Random::Range(1, 10); chance <= 2)
     {
         SpawnGoldenFood();
     }
@@ -111,9 +108,6 @@ void FoodSpawner::SpawnMovingFood()
     auto* food = m_scene.CreateActor();
     food->GetTransform().position = GetRandomPosition();
 
-    static std::mt19937 gen{std::random_device{}()};
-    std::uniform_int_distribution<int32_t> dirDist(0, 3);
-
     constexpr sf::Vector2f directions[] = {
         {1.0f, -1.0f},
         {1.0f, -1.0f},
@@ -123,7 +117,7 @@ void FoodSpawner::SpawnMovingFood()
 
     auto* movement = food->AddComponent<GameLibrary::AutoGridMovementComponent>(m_gameConfig.gridSize,
                                                                                 m_gameConfig.moveInterval * 2.0f);
-    movement->SetDirection(directions[dirDist(gen)]);
+    movement->SetDirection(directions[GameLibrary::Random::Range(0, 3)]);
 
     auto* pickup = food->AddComponent<MovingPickup>(m_eventSystem, m_engineConfig, m_gameConfig.gridSize);
 
@@ -137,14 +131,9 @@ void FoodSpawner::SpawnMovingFood()
 
 sf::Vector2f FoodSpawner::GetRandomPosition() const
 {
-    static std::mt19937 gen{std::random_device{}()};
-
     const int32_t maxX = (m_engineConfig.screenWidth / m_gameConfig.gridSize) - 2;
     const int32_t maxY = (m_engineConfig.screenHeight / m_gameConfig.gridSize) - 2;
 
-    std::uniform_int_distribution<int32_t> distX(1, maxX);
-    std::uniform_int_distribution<int32_t> distY(1, maxY);
-
-    return {static_cast<float>(distX(gen) * m_gameConfig.gridSize),
-            static_cast<float>(distY(gen) * m_gameConfig.gridSize)};
+    return {static_cast<float>(GameLibrary::Random::Range(1, maxX) * m_gameConfig.gridSize),
+            static_cast<float>(GameLibrary::Random::Range(1, maxY) * m_gameConfig.gridSize)};
 }

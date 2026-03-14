@@ -7,6 +7,7 @@
 #include "Data/Cell.hpp"
 #include "Interfaces/IGraphics.hpp"
 #include "Systems/Logger.hpp"
+#include "Utility/Random.hpp"
 
 namespace
 {
@@ -94,6 +95,6 @@ namespace Tetris
             m_bag.emplace_back(static_cast<ETetromino>(i));
         }
 
-        std::ranges::shuffle(m_bag, m_rng);
+        GameLibrary::Random::Shuffle(m_bag);
     }
 } // namespace Tetris

@@ -10,7 +10,6 @@
 #include "Data/Tetromino.hpp"
 
 #include <queue>
-#include <random>
 
 namespace Tetris
 {
@@ -33,7 +32,6 @@ namespace Tetris
         int32_t m_previewCount{};
         std::deque<ETetromino> m_queue{};
         std::vector<ETetromino> m_bag{};
-        std::mt19937 m_rng{std::random_device{}()};
     };
 }
 
