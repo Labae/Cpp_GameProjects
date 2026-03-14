@@ -17,7 +17,7 @@ void SettingsState::OnEnter([[maybe_unused]] GameScene& scene)
 
 void SettingsState::Update(GameScene& scene, [[maybe_unused]] const float deltaTime)
 {
-    auto& input = scene.GetInput();
+    const auto& input = scene.GetInput();
 
     if (input.IsKeyPressed(GameLibrary::KeyCode::Escape))
     {

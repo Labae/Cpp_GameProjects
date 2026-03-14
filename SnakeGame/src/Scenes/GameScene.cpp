@@ -186,9 +186,9 @@ void GameScene::RenderPauseMenu(GameLibrary::IGraphics& graphics) const
                        GameLibrary::TextAlign::Center);
 
     // 메뉴 항목
-    constexpr const char* items[] = {"Resume", "Settings", "Quit"};
     for (int32_t i = 0; i < 3; ++i)
     {
+        constexpr const char* items[] = {"Resume", "Settings", "Quit"};
         const sf::Color color = (i == menuIndex) ? sf::Color(255, 255, 0, 255) : sf::Color(180, 180, 180, 255);
         graphics.DrawLabel(items[i], boxX + boxW / 2, boxY + 70 + i * 35, 24, color, GameLibrary::TextAlign::Center);
     }
