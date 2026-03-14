@@ -22,6 +22,8 @@ namespace Tetris
         void SetCell(int32_t x, int32_t y, const Cell& cell) noexcept;
         [[nodiscard]] int32_t ClearFullLines();
 
+        [[nodiscard]] bool CanSpawnAt(ETetromino type) const noexcept;
+
     private:
         void RenderGrid(GameLibrary::IGraphics& graphics) const;
         void RenderCells(GameLibrary::IGraphics& graphics) const;

@@ -68,8 +68,8 @@ namespace GameLibrary
         m_window->draw(rect);
     }
 
-    void GraphicsService::DrawLabel(const std::string& text, int32_t x, int32_t y, int32_t fontSize,
-                                   const sf::Color& color, TextAlign align) noexcept
+    void GraphicsService::DrawLabel(const std::string& text, const int32_t x, const int32_t y, const int32_t fontSize,
+                                   const sf::Color& color, const TextAlign align) noexcept
     {
         if (not m_window or not m_resourceService)
         {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Components/NextQueue.hpp"
 #include "Data/Tetromino.hpp"
 #include "Scene/Scene.hpp"
 #include "Services/EventService.hpp"
@@ -25,10 +26,11 @@ namespace Tetris
 
         void OnEnter() override;
         void Update(float deltaTime) override;
+        void Render(GameLibrary::IGraphics& graphics) override;
 
     private:
-        void SpawnNewPiece();
-        void Hold();
+        void SpawnNewPiece() const;
+        void Hold() const;
         void OnPieceLocked(const struct PieceLockedEvent& event);
 
         const TetrisConfig* m_tetrisConfig{};
@@ -38,9 +40,10 @@ namespace Tetris
         Board* m_board{};
         ActivePiece* m_activePiece{};
         HoldBox* m_holdBox{};
+        NextQueue* m_nextQueue{};
 
         GameLibrary::SubscriptionToken m_pieceLockedToken{};
 
-        std::mt19937 m_rng{std::random_device{}()};
+        bool m_isGameOver{};
     };
 } // namespace Tetris

@@ -35,33 +35,50 @@ namespace Tetris
         auto* holdActor = CreateActor();
         m_holdBox = holdActor->AddComponent<HoldBox>(*m_tetrisConfig);
 
+        // NextQueue
+        auto* nextQueueActor = CreateActor();
+        m_nextQueue = nextQueueActor->AddComponent<NextQueue>(*m_tetrisConfig, 5);
+
         // 이벤트 구독
-        m_pieceLockedToken = m_eventService->Subscribe<PieceLockedEvent>(
-            [this](const PieceLockedEvent& event) { OnPieceLocked(event); });
+        m_pieceLockedToken = m_eventService->Subscribe<PieceLockedEvent>([this](const PieceLockedEvent& event)
+                                                                         { OnPieceLocked(event); });
 
         SpawnNewPiece();
     }
 
     void SingleGameScene::Update(const float deltaTime)
     {
+        if (m_isGameOver)
+        {
+            return;
+        }
+
         Scene::Update(deltaTime);
 
         // 홀드 입력
-        if (m_input->IsKeyPressed(GameLibrary::KeyCode::C) ||
-            m_input->IsKeyPressed(GameLibrary::KeyCode::LShift))
+        if (m_input->IsKeyPressed(GameLibrary::KeyCode::C) || m_input->IsKeyPressed(GameLibrary::KeyCode::LShift))
         {
             Hold();
         }
     }
 
-    void SingleGameScene::SpawnNewPiece()
+    void SingleGameScene::Render(GameLibrary::IGraphics& graphics)
     {
-        std::uniform_int_distribution<int32_t> dist(0, static_cast<int32_t>(ETetromino::Count) - 1);
-        const auto type = static_cast<ETetromino>(dist(m_rng));
+        Scene::Render(graphics);
+
+        if (m_isGameOver)
+        {
+            graphics.DrawLabel("GAME_OVER", 400, 400, 48, sf::Color::Red, GameLibrary::TextAlign::Center);
+        }
+    }
+
+    void SingleGameScene::SpawnNewPiece() const
+    {
+        const ETetromino type = m_nextQueue->Pop();
         m_activePiece->Spawn(type);
     }
 
-    void SingleGameScene::Hold()
+    void SingleGameScene::Hold() const
     {
         if (not m_activePiece->IsActive() || not m_holdBox->CanHold())
         {
@@ -69,9 +86,7 @@ namespace Tetris
         }
 
         const ETetromino currentType = m_activePiece->GetType();
-        const auto swapped = m_holdBox->Hold(currentType);
-
-        if (swapped.has_value())
+        if (const auto swapped = m_holdBox->Hold(currentType); swapped.has_value())
         {
             m_activePiece->Spawn(swapped.value());
         }
@@ -84,6 +99,15 @@ namespace Tetris
     void SingleGameScene::OnPieceLocked([[maybe_unused]] const PieceLockedEvent& event)
     {
         m_holdBox->ResetCanHold();
+
+        const ETetromino nextType = m_nextQueue->Peek();
+        if (not m_board->CanSpawnAt(nextType))
+        {
+            m_isGameOver = true;
+            m_eventService->Publish(GameOverEvent{});
+            return;
+        }
+
         SpawnNewPiece();
     }
 } // namespace Tetris

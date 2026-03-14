@@ -1,6 +1,7 @@
 #include "Components/Board.hpp"
 
 #include "Config/TetrisConfig.hpp"
+#include "Data/Tetromino.hpp"
 #include "Interfaces/IGraphics.hpp"
 
 #include <algorithm>
@@ -87,6 +88,22 @@ namespace Tetris
         }
 
         return linesCleared;
+    }
+
+    bool Board::CanSpawnAt(const ETetromino type) const noexcept
+    {
+        const int32_t spawnX = (m_config.boardWidth - 4) / 2;
+
+        const auto& tetromino = GetTetromino(type);
+        for (const auto& [col, row] : tetromino.GetBlockPositions(0))
+        {
+            if (not IsCellEmpty(spawnX + col, row))
+            {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     void Board::RenderGrid(GameLibrary::IGraphics& graphics) const

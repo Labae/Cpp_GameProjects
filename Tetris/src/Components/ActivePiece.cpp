@@ -56,7 +56,7 @@ namespace Tetris
         {
             MoveRight();
         }
-        if (m_input.IsKeyPressed(GameLibrary::KeyCode::Down))
+        if (m_input.IsKeyDown(GameLibrary::KeyCode::Down))
         {
             SoftDrop();
         }
@@ -64,8 +64,7 @@ namespace Tetris
         {
             HardDrop();
         }
-        if (m_input.IsKeyPressed(GameLibrary::KeyCode::Up) ||
-            m_input.IsKeyPressed(GameLibrary::KeyCode::X))
+        if (m_input.IsKeyPressed(GameLibrary::KeyCode::Up) || m_input.IsKeyPressed(GameLibrary::KeyCode::X))
         {
             RotateCW();
         }
@@ -83,8 +82,22 @@ namespace Tetris
         }
 
         const auto& tetromino = GetTetromino(m_type);
-        const Cell cell(m_type);
 
+        // Ghost Piece 렌더링
+        if (const int32_t ghostY = CalculateGhostY(); ghostY != m_gridY)
+        {
+            sf::Color ghostColor = tetromino.color;
+            ghostColor.a = 64;
+
+            for (const auto& [col, row] : tetromino.GetBlockPositions(m_rotation))
+            {
+                const int32_t px = m_config.boardX + (m_gridX + col) * m_config.cellSize;
+                const int32_t py = m_config.boardY + (ghostY + row) * m_config.cellSize;
+                Cell(ghostColor).Render(graphics, px, py, m_config.cellSize);
+            }
+        }
+
+        const Cell cell(m_type);
         for (const auto& [col, row] : tetromino.GetBlockPositions(m_rotation))
         {
             const int32_t px = m_config.boardX + (m_gridX + col) * m_config.cellSize;
@@ -164,7 +177,7 @@ namespace Tetris
             m_board.SetCell(m_gridX + col, m_gridY + row, Cell(m_type));
         }
 
-        m_board.ClearFullLines();
+        std::ignore = m_board.ClearFullLines();
         m_active = false;
 
         m_eventService.Publish(PieceLockedEvent{});
@@ -179,8 +192,7 @@ namespace Tetris
             const int32_t boardX = newX + col;
             const int32_t boardY = newY + row;
 
-            if (boardX < 0 || boardX >= m_config.boardWidth ||
-                boardY < 0 || boardY >= m_config.boardHeight ||
+            if (boardX < 0 || boardX >= m_config.boardWidth || boardY < 0 || boardY >= m_config.boardHeight ||
                 not m_board.IsCellEmpty(boardX, boardY))
             {
                 return false;
@@ -188,5 +200,17 @@ namespace Tetris
         }
 
         return true;
+    }
+
+    int32_t ActivePiece::CalculateGhostY() const
+    {
+        int32_t ghostY = m_gridY;
+
+        while (CanMove(m_gridX, ghostY + 1, m_rotation))
+        {
+            ++ghostY;
+        }
+
+        return ghostY;
     }
 } // namespace Tetris

@@ -16,7 +16,7 @@ namespace Tetris
     struct TetrisConfig;
     class Board;
 
-    class ActivePiece : public GameLibrary::Component
+    class ActivePiece final : public GameLibrary::Component
     {
     public:
         ActivePiece(GameLibrary::Actor* owner, const TetrisConfig& config, Board& board,
@@ -40,6 +40,7 @@ namespace Tetris
         void Lock();
 
         [[nodiscard]] bool CanMove(int32_t newX, int32_t newY, int32_t newRotation) const;
+        [[nodiscard]] int32_t CalculateGhostY() const;
 
         const TetrisConfig& m_config;
         Board& m_board;

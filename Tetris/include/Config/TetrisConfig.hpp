@@ -20,7 +20,7 @@ namespace Tetris
         int32_t holdBoxPadding{10};
 
         // Next 박스
-        int32_t nextBoxX{560};
+        int32_t nextBoxX{600};
         int32_t nextBoxY{100};
         int32_t nextBoxSize{128};
         int32_t nextBoxPadding{10};
