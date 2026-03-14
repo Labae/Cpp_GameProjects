@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Components/NextQueue.hpp"
+#include "Core/EngineConfig.hpp"
 #include "Data/Tetromino.hpp"
 #include "Scene/Scene.hpp"
 #include "Services/EventService.hpp"
@@ -32,7 +33,9 @@ namespace Tetris
         void SpawnNewPiece() const;
         void Hold() const;
         void OnPieceLocked(const struct PieceLockedEvent& event);
+        void OnLineCleared(const struct LinesClearedEvent& event);
 
+        const GameLibrary::EngineConfig* m_engineConfig{};
         const TetrisConfig* m_tetrisConfig{};
         GameLibrary::IInputProvider* m_input{};
         GameLibrary::EventService* m_eventService{};
@@ -43,7 +46,12 @@ namespace Tetris
         NextQueue* m_nextQueue{};
 
         GameLibrary::SubscriptionToken m_pieceLockedToken{};
+        GameLibrary::SubscriptionToken m_lineClearedToken{};
 
         bool m_isGameOver{};
+        int32_t m_score{};
+
+        bool m_isPaused{};
+        int32_t m_pauseMenuIndex{}; // 0: Resume, 1: Title
     };
 } // namespace Tetris

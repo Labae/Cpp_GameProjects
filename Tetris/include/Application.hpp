@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Core/Engine.hpp"
+#include "Services/EventService.hpp"
 
 #include <cstdint>
 
@@ -21,9 +22,11 @@ namespace Tetris
 
     private:
         void RegisterScenes();
+        void SubscribeEvents();
         void LoadResources();
         void LoadConfig();
 
         GameLibrary::Engine m_engine{};
+        GameLibrary::SubscriptionToken m_quitToken{};
     };
 } // namespace Tetris

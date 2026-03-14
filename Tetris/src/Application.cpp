@@ -1,6 +1,7 @@
 #include "Application.hpp"
 
 #include "Config/TetrisConfig.hpp"
+#include "Events/GameEvents.hpp"
 #include "Scene/SceneManager.hpp"
 #include "Scenes/SingleGameScene.hpp"
 #include "Scenes/TitleScene.hpp"
@@ -36,6 +37,7 @@ namespace Tetris
         LoadConfig();
         LoadResources();
         RegisterScenes();
+        SubscribeEvents();
 
         container.Resolve<GameLibrary::SceneManager>()->LoadScene("Title");
         m_engine.Run();
@@ -55,6 +57,17 @@ namespace Tetris
         sceneManager->RegisterSceneFactory("SingleGame",
                                            [](const std::string& name, GameLibrary::ServiceContainer& container)
                                            { return std::make_unique<SingleGameScene>(name, container); });
+    }
+
+    void Application::SubscribeEvents()
+    {
+        if (auto* eventService = m_engine.GetContainer().Resolve<GameLibrary::EventService>())
+        {
+            m_quitToken = eventService->Subscribe<QuitEvent>([this]([[maybe_unused]] const QuitEvent& event)
+            {
+                m_engine.Quit();
+            });
+        }
     }
 
     void Application::LoadResources()
@@ -111,5 +124,11 @@ namespace Tetris
 
         // Gameplay
         config->fallInterval = configService->GetFloat("fallInterval", config->fallInterval);
+
+        // Scores
+        config->lineScores[0] = configService->GetInt("scoreSingle", config->lineScores[0]);
+        config->lineScores[1] = configService->GetInt("scoreDouble", config->lineScores[1]);
+        config->lineScores[2] = configService->GetInt("scoreTriple", config->lineScores[2]);
+        config->lineScores[3] = configService->GetInt("scoreTetris", config->lineScores[3]);
     }
 } // namespace Tetris

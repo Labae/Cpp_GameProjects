@@ -21,3 +21,9 @@ nextBoxPadding: 10
 
 # Gameplay
 fallInterval: 1.0
+
+# Scores
+scoreSingle: 100
+scoreDouble: 300
+scoreTriple: 500
+scoreTetris: 800

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <array>
 
 namespace Tetris
 {
@@ -27,5 +28,8 @@ namespace Tetris
 
         // 게임플레이
         float fallInterval{1.0f};
+
+        // 점수
+        std::array<int32_t, 4> lineScores{100, 300, 500, 800};
     };
 } // namespace Tetris

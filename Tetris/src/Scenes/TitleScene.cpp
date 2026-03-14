@@ -7,8 +7,11 @@
 #include "Constants/SceneNames.hpp"
 #include "Core/EngineConfig.hpp"
 #include "Core/ServiceContainer.hpp"
+#include "Events/GameEvents.hpp"
 #include "Interfaces/IInputProvider.hpp"
+#include "Platform/Window.hpp"
 #include "Scene/SceneManager.hpp"
+#include "Services/EventService.hpp"
 
 namespace Tetris
 {
@@ -45,8 +48,6 @@ namespace Tetris
         // 메뉴 텍스트
         constexpr const char* MENU_LABELS[] = {
             "SINGLE PLAY",
-            "BATTLE MODE",
-            "SETTINGS",
             "EXIT"
         };
     } // namespace
@@ -61,6 +62,7 @@ namespace Tetris
         m_input = container.Resolve<GameLibrary::IInputProvider>();
         m_sceneManager = container.Resolve<GameLibrary::SceneManager>();
         m_engineConfig = container.Resolve<GameLibrary::EngineConfig>();
+        m_eventService = container.Resolve<GameLibrary::EventService>();
 
         m_selectedMenu = EMenuItem::SinglePlay;
     }
@@ -135,19 +137,9 @@ namespace Tetris
             m_sceneManager->LoadScene(SceneNames::SingleGame);
             break;
         }
-        case EMenuItem::BattleMode:
-        {
-            m_sceneManager->LoadScene(SceneNames::BattleLobby);
-            break;
-        }
-        case EMenuItem::Settings:
-        {
-            // TODO: Settings Scene
-            break;
-        }
         case EMenuItem::Exit:
         {
-            // TODO: Engine Quit
+            m_eventService->Publish(QuitEvent{});
             break;
         }
         case EMenuItem::Count:

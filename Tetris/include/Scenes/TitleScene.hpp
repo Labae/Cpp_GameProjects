@@ -10,6 +10,7 @@ namespace GameLibrary
 {
     class IInputProvider;
     class SceneManager;
+    class EventService;
     struct EngineConfig;
 } // namespace GameLibrary
 
@@ -29,8 +30,6 @@ namespace Tetris
         enum class EMenuItem : uint8_t
         {
             SinglePlay,
-            BattleMode,
-            Settings,
             Exit,
             Count
         };
@@ -41,6 +40,7 @@ namespace Tetris
 
         GameLibrary::IInputProvider* m_input{};
         GameLibrary::SceneManager* m_sceneManager{};
+        GameLibrary::EventService* m_eventService{};
         const GameLibrary::EngineConfig* m_engineConfig{};
 
         EMenuItem m_selectedMenu{EMenuItem::SinglePlay};

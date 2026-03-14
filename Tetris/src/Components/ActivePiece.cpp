@@ -177,9 +177,13 @@ namespace Tetris
             m_board.SetCell(m_gridX + col, m_gridY + row, Cell(m_type));
         }
 
-        std::ignore = m_board.ClearFullLines();
-        m_active = false;
+        const int32_t linesCleared = m_board.ClearFullLines();
+        if (linesCleared > 0)
+        {
+            m_eventService.Publish(LinesClearedEvent{linesCleared});
+        }
 
+        m_active = false;
         m_eventService.Publish(PieceLockedEvent{});
     }
 
