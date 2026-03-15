@@ -6,6 +6,9 @@
 #define TITLESCENE_HPP
 #include "Scene/Scene.hpp"
 #include "Time/Timer.hpp"
+#include "UI/MenuSelector.hpp"
+
+#include <optional>
 
 namespace GameLibrary
 {
@@ -28,23 +31,14 @@ namespace Tetris
         void Render(GameLibrary::IGraphics& graphics) override;
 
     private:
-        enum class EMenuItem : uint8_t
-        {
-            SinglePlay,
-            Exit,
-            Count
-        };
-
         void SelectMenuItem() const;
-        void MenuUp();
-        void MenuDown();
 
         GameLibrary::IInputProvider* m_input{};
         GameLibrary::SceneManager* m_sceneManager{};
         GameLibrary::EventService* m_eventService{};
         const GameLibrary::EngineConfig* m_engineConfig{};
 
-        EMenuItem m_selectedMenu{EMenuItem::SinglePlay};
+        std::optional<GameLibrary::MenuSelector> m_menu{};
 
         GameLibrary::Timer m_blinkTimer;
         bool m_showCursor{true};

@@ -6,8 +6,9 @@
 #define PAUSEDSTATE_HPP
 
 #include "States/IState.hpp"
+#include "UI/MenuSelector.hpp"
 
-#include <cstdint>
+#include <optional>
 
 namespace Tetris
 {
@@ -18,11 +19,10 @@ namespace Tetris
     public:
         void OnEnter(SingleGameScene& scene) override;
         void Update(SingleGameScene& scene, float deltaTime) override;
-
-        [[nodiscard]] int32_t GetMenuIndex() const noexcept { return m_menuIndex; }
+        void Render(SingleGameScene& scene, GameLibrary::IGraphics& graphics) override;
 
     private:
-        int32_t m_menuIndex{};
+        std::optional<GameLibrary::MenuSelector> m_menu{};
     };
 } // namespace Tetris
 

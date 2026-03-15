@@ -45,9 +45,6 @@ private:
     void ApplyConfig() const;
     void SetupGame();
 
-    void RenderPauseMenu(GameLibrary::IGraphics& graphics) const;
-    void RenderSettings(GameLibrary::IGraphics& graphics) const;
-
     GameLibrary::StateMachine<GameScene> m_stateMachine{*this};
 
     GameLibrary::FxService* m_fxSystem{};

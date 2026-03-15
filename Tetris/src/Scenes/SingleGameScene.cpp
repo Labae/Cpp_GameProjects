@@ -20,8 +20,6 @@
 
 namespace
 {
-    constexpr sf::Color MENU_SELECTED_COLOR = sf::Color::Yellow;
-    constexpr auto MENU_NORMAL_COLOR = sf::Color(150, 150, 150, 255);
     constexpr sf::Color COLOR_HIGH_SCORE{180, 180, 180, 255};
     constexpr sf::Color COLOR_NEW_HIGH_SCORE{255, 215, 0, 255};
 
@@ -114,23 +112,8 @@ namespace Tetris
         const int32_t centerX = m_engineConfig->screenWidth / 2;
         const int32_t centerY = m_engineConfig->screenHeight / 2;
 
-        // 일시정지 오버레이
-        if (m_stateMachine.IsInState<PausedState>())
-        {
-            const auto* state = m_stateMachine.GetState<PausedState>();
-            const int32_t menuIndex = state->GetMenuIndex();
-
-            graphics.FillRect(0, 0, m_engineConfig->screenWidth, m_engineConfig->screenHeight, sf::Color(0, 0, 0, 180));
-
-            graphics.DrawLabel("PAUSED", centerX, centerY - 80, 48, sf::Color::White, GameLibrary::TextAlign::Center);
-            graphics.DrawLabel("Resume", centerX, centerY, 24,
-                               menuIndex == 0 ? MENU_SELECTED_COLOR : MENU_NORMAL_COLOR,
-                               GameLibrary::TextAlign::Center);
-            graphics.DrawLabel("Title", centerX, centerY + 40, 24,
-                               menuIndex == 1 ? MENU_SELECTED_COLOR : MENU_NORMAL_COLOR,
-                               GameLibrary::TextAlign::Center);
-            return;
-        }
+        // 상태별 오버레이 렌더링 (PausedState 등)
+        m_stateMachine.Render(graphics);
 
         // 게임 오버 오버레이
         if (m_stateMachine.IsInState<GameOverState>())

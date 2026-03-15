@@ -44,12 +44,6 @@ namespace Tetris
         constexpr auto TEXT_HINT = "Use Arrow Keys to Navigate, Enter to Select";
         constexpr auto TEXT_CURSOR_LEFT = ">";
         constexpr auto TEXT_CURSOR_RIGHT = "<";
-
-        // 메뉴 텍스트
-        constexpr const char* MENU_LABELS[] = {
-            "SINGLE PLAY",
-            "EXIT"
-        };
     } // namespace
 
     TitleScene::TitleScene(const std::string& name, GameLibrary::ServiceContainer& container)
@@ -66,7 +60,16 @@ namespace Tetris
         m_engineConfig = container.Resolve<GameLibrary::EngineConfig>();
         m_eventService = container.Resolve<GameLibrary::EventService>();
 
-        m_selectedMenu = EMenuItem::SinglePlay;
+        m_menu.emplace(*m_input);
+        m_menu->SetItems({"SINGLE PLAY", "EXIT"});
+        m_menu->SetStyle({
+            .fontSize = MENU_FONT_SIZE,
+            .selectedFontSize = MENU_FONT_SIZE_SELECTED,
+            .spacing = MENU_SPACING,
+            .normalColor = COLOR_MENU_NORMAL,
+            .selectedColor = COLOR_MENU_SELECTED,
+            .align = GameLibrary::TextAlign::Center,
+        });
     }
 
     void TitleScene::Update(const float deltaTime)
@@ -74,18 +77,10 @@ namespace Tetris
         // 커서 깜빡임
         m_blinkTimer.Update(deltaTime);
 
-        // 메뉴 이동
-        if (m_input->IsKeyPressed(GameLibrary::KeyCode::Up))
-        {
-            MenuUp();
-        }
-        if (m_input->IsKeyPressed(GameLibrary::KeyCode::Down))
-        {
-            MenuDown();
-        }
+        m_menu->Update();
 
         // 선택
-        if (m_input->IsKeyPressed(GameLibrary::KeyCode::Enter) or m_input->IsKeyPressed(GameLibrary::KeyCode::Space))
+        if (m_menu->IsConfirmed())
         {
             SelectMenuItem();
         }
@@ -99,21 +94,13 @@ namespace Tetris
         graphics.DrawLabel(TEXT_TITLE, centerX, TITLE_Y, TITLE_FONT_SIZE, COLOR_TITLE, GameLibrary::TextAlign::Center);
 
         // 메뉴 항목
-        constexpr auto menuCount = static_cast<int32_t>(EMenuItem::Count);
-        for (int32_t i = 0; i < menuCount; ++i)
-        {
-            const bool isSelected = (i == static_cast<int32_t>(m_selectedMenu));
-            const sf::Color color = isSelected ? COLOR_MENU_SELECTED : COLOR_MENU_NORMAL;
-            const int32_t fontSize = isSelected ? MENU_FONT_SIZE_SELECTED : MENU_FONT_SIZE;
-            const int32_t y = MENU_START_Y + i * MENU_SPACING;
-
-            graphics.DrawLabel(MENU_LABELS[i], centerX, y, fontSize, color, GameLibrary::TextAlign::Center);
-        }
+        m_menu->SetPosition(centerX, MENU_START_Y);
+        m_menu->Render(graphics);
 
         // 선택 커서
         if (m_showCursor)
         {
-            const int32_t cursorY = MENU_START_Y + static_cast<int32_t>(m_selectedMenu) * MENU_SPACING;
+            const int32_t cursorY = MENU_START_Y + m_menu->GetSelectedIndex() * MENU_SPACING;
             graphics.DrawLabel(TEXT_CURSOR_LEFT, centerX - CURSOR_OFFSET_X, cursorY, MENU_FONT_SIZE_SELECTED, COLOR_MENU_SELECTED,
                                GameLibrary::TextAlign::Center);
             graphics.DrawLabel(TEXT_CURSOR_RIGHT, centerX + CURSOR_OFFSET_X, cursorY, MENU_FONT_SIZE_SELECTED, COLOR_MENU_SELECTED,
@@ -127,37 +114,17 @@ namespace Tetris
 
     void TitleScene::SelectMenuItem() const
     {
-        switch (m_selectedMenu)
+        switch (m_menu->GetSelectedIndex())
         {
-        case EMenuItem::SinglePlay:
-        {
+        case 0: // Single Play
             m_sceneManager->LoadScene(SceneNames::SingleGame);
             break;
-        }
-        case EMenuItem::Exit:
-        {
+        case 1: // Exit
             m_eventService->Publish(QuitEvent{});
             break;
+        default:
+            break;
         }
-        case EMenuItem::Count:
-        default:;
-        }
-    }
-
-    void TitleScene::MenuUp()
-    {
-        constexpr auto count = static_cast<int32_t>(EMenuItem::Count);
-        auto index = static_cast<int32_t>(m_selectedMenu);
-        index = (index - 1 + count) % count;
-        m_selectedMenu = static_cast<EMenuItem>(index);
-    }
-
-    void TitleScene::MenuDown()
-    {
-        constexpr auto count = static_cast<int32_t>(EMenuItem::Count);
-        auto index = static_cast<int32_t>(m_selectedMenu);
-        index = (index + 1) % count;
-        m_selectedMenu = static_cast<EMenuItem>(index);
     }
 
 } // namespace Tetris

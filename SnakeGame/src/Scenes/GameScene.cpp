@@ -12,8 +12,8 @@
 #include "Data/GameData.hpp"
 #include "Interfaces/IInputProvider.hpp"
 #include "Scene/SceneManager.hpp"
-#include "Scenes/States/PauseMenuState.hpp"
 #include "Scenes/States/PlayingState.hpp"
+#include "Scenes/States/PauseMenuState.hpp"
 #include "Scenes/States/SettingsState.hpp"
 #include "Services/AudioService.hpp"
 #include "Services/ConfigService.hpp"
@@ -111,14 +111,7 @@ void GameScene::Render(GameLibrary::IGraphics& graphics)
         m_fxSystem->Render(graphics);
     }
 
-    if (m_stateMachine.IsInState<PauseMenuState>())
-    {
-        RenderPauseMenu(graphics);
-    }
-    else if (m_stateMachine.IsInState<SettingsState>())
-    {
-        RenderSettings(graphics);
-    }
+    m_stateMachine.Render(graphics);
 }
 
 void GameScene::UpdateActors(const float deltaTime)
@@ -154,98 +147,6 @@ void GameScene::SaveSettings() const
     {
         GameLibrary::Logger::Warning("Failed to save GameData!!");
     }
-}
-
-void GameScene::RenderPauseMenu(GameLibrary::IGraphics& graphics) const
-{
-    if (not m_engineConfig)
-    {
-        return;
-    }
-
-    const auto* state = m_stateMachine.GetState<PauseMenuState>();
-    const int32_t menuIndex = state->GetMenuIndex();
-
-    const int32_t screenW = m_engineConfig->screenWidth;
-    const int32_t screenH = m_engineConfig->screenHeight;
-
-    // 반투명 오버레이
-    graphics.FillRect(0, 0, screenW, screenH, sf::Color(0, 0, 0, 150));
-
-    // 일시정지 박스
-    constexpr int32_t boxW = 300;
-    constexpr int32_t boxH = 200;
-    const int32_t boxX = (screenW - boxW) / 2;
-    const int32_t boxY = (screenH - boxH) / 2;
-
-    graphics.FillRect(boxX, boxY, boxW, boxH, sf::Color(40, 40, 40, 255));
-    graphics.DrawRect(boxX, boxY, boxW, boxH, sf::Color(255, 255, 255, 255));
-
-    // 타이틀
-    graphics.DrawLabel("PAUSED", boxX + boxW / 2, boxY + 20, 36, sf::Color(255, 255, 255, 255),
-                       GameLibrary::TextAlign::Center);
-
-    // 메뉴 항목
-    for (int32_t i = 0; i < 3; ++i)
-    {
-        constexpr const char* items[] = {"Resume", "Settings", "Quit"};
-        const sf::Color color = (i == menuIndex) ? sf::Color(255, 255, 0, 255) : sf::Color(180, 180, 180, 255);
-        graphics.DrawLabel(items[i], boxX + boxW / 2, boxY + 70 + i * 35, 24, color, GameLibrary::TextAlign::Center);
-    }
-}
-
-void GameScene::RenderSettings(GameLibrary::IGraphics& graphics) const
-{
-    if (not m_engineConfig)
-    {
-        return;
-    }
-
-    const auto* state = m_stateMachine.GetState<SettingsState>();
-    const int32_t settingsIndex = state->GetSettingsIndex();
-
-    const int32_t screenW = m_engineConfig->screenWidth;
-    const int32_t screenH = m_engineConfig->screenHeight;
-
-    // 반투명 오버레이
-    graphics.FillRect(0, 0, screenW, screenH, sf::Color(0, 0, 0, 150));
-
-    // 설정 박스
-    constexpr int32_t boxW = 350;
-    constexpr int32_t boxH = 200;
-    const int32_t boxX = (screenW - boxW) / 2;
-    const int32_t boxY = (screenH - boxH) / 2;
-
-    graphics.FillRect(boxX, boxY, boxW, boxH, sf::Color(40, 40, 40, 255));
-    graphics.DrawRect(boxX, boxY, boxW, boxH, sf::Color(255, 255, 255, 255));
-
-    // 타이틀
-    graphics.DrawLabel("SETTINGS", boxX + boxW / 2, boxY + 20, 36, sf::Color(255, 255, 255, 255),
-                       GameLibrary::TextAlign::Center);
-
-    // 볼륨 바
-    const float bgmVol = m_audioService ? m_audioService->GetBGMVolume() : 1.0f;
-    const float sfxVol = m_audioService ? m_audioService->GetSFXVolume() : 1.0f;
-
-    const int32_t barX = boxX + 150;
-    constexpr int32_t barW = 150;
-    constexpr int32_t barH = 20;
-
-    // BGM
-    const sf::Color bgmColor = (settingsIndex == 0) ? sf::Color(255, 255, 0, 255) : sf::Color(180, 180, 180, 255);
-    graphics.DrawLabel("BGM", boxX + 30, boxY + 70, 24, bgmColor, GameLibrary::TextAlign::Left);
-    graphics.DrawRect(barX, boxY + 70, barW, barH, sf::Color(100, 100, 100, 255));
-    graphics.FillRect(barX, boxY + 70, static_cast<int32_t>(barW * bgmVol), barH, sf::Color(0, 200, 0, 255));
-
-    // SFX
-    const sf::Color sfxColor = (settingsIndex == 1) ? sf::Color(255, 255, 0, 255) : sf::Color(180, 180, 180, 255);
-    graphics.DrawLabel("SFX", boxX + 30, boxY + 110, 24, sfxColor, GameLibrary::TextAlign::Left);
-    graphics.DrawRect(barX, boxY + 110, barW, barH, sf::Color(100, 100, 100, 255));
-    graphics.FillRect(barX, boxY + 110, static_cast<int32_t>(barW * sfxVol), barH, sf::Color(0, 200, 0, 255));
-
-    // 안내
-    graphics.DrawLabel("< > to adjust, ESC to back", boxX + boxW / 2, boxY + 160, 18, sf::Color(120, 120, 120, 255),
-                       GameLibrary::TextAlign::Center);
 }
 
 void GameScene::ApplyConfig() const

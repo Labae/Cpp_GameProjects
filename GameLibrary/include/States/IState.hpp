@@ -7,6 +7,8 @@
 
 namespace GameLibrary
 {
+    class IGraphics;
+
     template <typename TContext>
     class IState
     {
@@ -16,6 +18,7 @@ namespace GameLibrary
         virtual void OnEnter([[maybe_unused]] TContext& context) {}
         virtual void OnExit([[maybe_unused]] TContext& context) {}
         virtual void Update([[maybe_unused]] TContext& context, [[maybe_unused]] float deltaTime) {}
+        virtual void Render([[maybe_unused]] TContext& context, [[maybe_unused]] IGraphics& graphics) {}
     };
 } // namespace GameLibrary
 

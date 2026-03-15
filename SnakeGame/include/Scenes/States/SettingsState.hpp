@@ -12,8 +12,7 @@ class SettingsState final : public GameLibrary::IState<GameScene>
 public:
     void OnEnter(GameScene& scene) override;
     void Update(GameScene& scene, float deltaTime) override;
-
-    [[nodiscard]] int32_t GetSettingsIndex() const noexcept { return m_settingsIndex; }
+    void Render(GameScene& scene, GameLibrary::IGraphics& graphics) override;
 
 private:
     int32_t m_settingsIndex{};

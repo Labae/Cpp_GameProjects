@@ -62,6 +62,14 @@ namespace GameLibrary
             }
         }
 
+        void Render(IGraphics& graphics)
+        {
+            if (m_currentState)
+            {
+                m_currentState->Render(m_context, graphics);
+            }
+        }
+
         template <typename TState> [[nodiscard]] bool IsInState() const noexcept
         {
             if (not m_currentState)
