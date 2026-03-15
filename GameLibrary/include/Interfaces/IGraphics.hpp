@@ -1,8 +1,8 @@
 #pragma once
 
 #include <SFML/Graphics/Color.hpp>
-#include <cstdint>
 #include <string>
+#include "UI/RichText.hpp"
 
 namespace GameLibrary
 {
@@ -24,6 +24,9 @@ namespace GameLibrary
         virtual void FillRect(int32_t x, int32_t y, int32_t width, int32_t height, const sf::Color& color) = 0;
         virtual void DrawLabel(const std::string& text, int32_t x, int32_t y, int32_t fontSize, const sf::Color& color,
                                TextAlign align = TextAlign::Left) = 0;
+        virtual void DrawRichText(const std::string& markup, int32_t x, int32_t y, int32_t fontSize,
+                                          const sf::Color& defaultColor = sf::Color::White,
+                                          TextAlign align = TextAlign::Left) = 0;
         virtual void Present() = 0;
 
         virtual void SetOffset(int32_t x, int32_t y) = 0;

@@ -107,14 +107,17 @@ namespace TextRPG
         m_lastIndex = m_menu->GetSelectedIndex();
         const auto& job = m_jobs[m_lastIndex];
 
-        const std::string desc =
-            std::format("HP: {}  MP: {}  ATK: {}  DEF: {}\n"
-                        "\n"
-                        "Skills:\n"
-                        "  {} - {}\n"
-                        "  {} - {}",
-                        job.baseHp, job.baseMp, job.baseAttack, job.baseDefense, job.skills[0].name,
-                        job.skills[0].description, job.skills[1].name, job.skills[1].description);
+        std::string desc = std::format(
+            "[red]HP:[/] {}  [blue]MP:[/] {}  [orange]ATK:[/] {}  [cyan]DEF:[/] {}\n"
+            "\n"
+            "[gold]Skills:[/]",
+            job.baseHp, job.baseMp, job.baseAttack, job.baseDefense);
+
+        for (const auto& skill : job.skills)
+        {
+            desc += std::format("\n  [gray]{} - {} (MP: {})[/]",
+                                skill.name, skill.description, skill.mpCost);
+        }
 
         m_descBox.SetText(desc);
     }

@@ -55,7 +55,7 @@ namespace GameLibrary
         for (int32_t i = 0; i < static_cast<int32_t>(m_lines.size()); ++i)
         {
             const int32_t lineY = textY + i * m_style.lineSpacing;
-            graphics.DrawLabel(m_lines[i], textX, lineY, m_style.fontSize, m_style.textColor, m_style.align);
+            graphics.DrawRichText(m_lines[i], textX, lineY, m_style.fontSize, m_style.textColor, m_style.align);
         }
     }
 } // namespace GameLibrary

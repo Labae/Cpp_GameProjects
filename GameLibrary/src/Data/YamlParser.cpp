@@ -88,14 +88,6 @@ namespace GameLibrary
             return {};
         }
 
-        // ===== 디버그 출력 (나중에 제거) =====
-        std::cout << "[ParseNode] index=" << index
-                  << " indent=" << lines[index].indent
-                  << " content=\"" << lines[index].content << "\""
-                  << " starts_with_dash=" << lines[index].content.starts_with("- ")
-                  << "\n";
-        // =====================================
-
         const int32_t currentIndent = lines[index].indent;
 
         // ===== 리스트 파싱 =====

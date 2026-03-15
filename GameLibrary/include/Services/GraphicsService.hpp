@@ -32,7 +32,10 @@ namespace GameLibrary
         void DrawLine(int32_t x1, int32_t y1, int32_t x2, int32_t y2, const sf::Color& color) noexcept override;
         void FillRect(int32_t x, int32_t y, int32_t width, int32_t height, const sf::Color& color) noexcept override;
         void DrawLabel(const std::string& text, int32_t x, int32_t y, int32_t fontSize, const sf::Color& color,
-                       TextAlign align = TextAlign::Left) noexcept override ;
+                       TextAlign align = TextAlign::Left) noexcept override;
+        void DrawRichText(const std::string& markup, int32_t x, int32_t y, int32_t fontSize,
+                          const sf::Color& defaultColor = sf::Color::White,
+                          TextAlign align = TextAlign::Left) noexcept override;
         void Present() noexcept override;
 
         void SetOffset(const int32_t x, const int32_t y) noexcept override

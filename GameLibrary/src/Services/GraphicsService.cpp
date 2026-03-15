@@ -69,7 +69,7 @@ namespace GameLibrary
     }
 
     void GraphicsService::DrawLabel(const std::string& text, const int32_t x, const int32_t y, const int32_t fontSize,
-                                   const sf::Color& color, const TextAlign align) noexcept
+                                    const sf::Color& color, const TextAlign align) noexcept
     {
         if (not m_window or not m_resourceService)
         {
@@ -103,6 +103,53 @@ namespace GameLibrary
 
         sfText.setPosition(sf::Vector2f(posX, y + m_offsetY));
         m_window->draw(sfText);
+    }
+
+    void GraphicsService::DrawRichText(const std::string& markup, const int32_t x, const int32_t y,
+                                           const int32_t fontSize, const sf::Color& defaultColor,
+                                           const TextAlign align) noexcept
+    {
+        if (not m_window or not m_resourceService)
+        {
+            return;
+        }
+
+        const auto segments = RichText::Parse(markup, defaultColor);
+        const auto font = m_resourceService->GetFont("main");
+
+        // 전체 폭 계산 (Center/Right 정렬용)
+        float totalWidth = 0.0f;
+        for (const auto& segment : segments)
+        {
+            sf::Text tempText(font, segment.text, fontSize);
+            totalWidth += tempText.getLocalBounds().size.x;
+        }
+
+        // 시작 X 계산
+        auto posX = static_cast<float>(x + m_offsetX);
+        switch (align)
+        {
+        case TextAlign::Center:
+            posX -= totalWidth * 0.5f;
+            break;
+        case TextAlign::Right:
+            posX -= totalWidth;
+            break;
+        case TextAlign::Left:
+        default:
+            break;
+        }
+
+        // 세그먼트별 렌더링
+        for (const auto& [text, color] : segments)
+        {
+            sf::Text sfText(font, text, fontSize);
+            sfText.setFillColor(color);
+            sfText.setPosition(sf::Vector2f(posX, static_cast<float>(y + m_offsetY)));
+            m_window->draw(sfText);
+
+            posX += sfText.getLocalBounds().size.x;
+        }
     }
 
     void GraphicsService::Present() noexcept
