@@ -2,6 +2,7 @@
 #define SNAKE_SETTINGSSTATE_HPP
 
 #include "States/IState.hpp"
+#include "UI/TextBox.hpp"
 
 #include <cstdint>
 
@@ -16,6 +17,7 @@ public:
 
 private:
     int32_t m_settingsIndex{};
+    GameLibrary::TextBox m_titleBox{};
 };
 
 #endif // SNAKE_SETTINGSSTATE_HPP

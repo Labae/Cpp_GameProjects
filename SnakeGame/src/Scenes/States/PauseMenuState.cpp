@@ -28,6 +28,24 @@ void PauseMenuState::OnEnter(GameScene& scene)
             .selectedColor = sf::Color(255, 255, 0, 255),
             .align = GameLibrary::TextAlign::Center,
         });
+
+        const auto& config = scene.GetEngineConfig();
+        constexpr int32_t boxW = 300;
+        constexpr int32_t boxH = 200;
+        const int32_t boxX = (config.screenWidth - boxW) / 2;
+        const int32_t boxY = (config.screenHeight - boxH) / 2;
+
+        m_titleBox.SetText("PAUSED");
+        m_titleBox.SetPosition(boxX, boxY);
+        m_titleBox.SetSize(boxW, boxH);
+        m_titleBox.SetStyle({
+            .fontSize = 36,
+            .paddingY = 20,
+            .textColor = sf::Color(255, 255, 255, 255),
+            .backgroundColor = sf::Color(40, 40, 40, 255),
+            .borderColor = sf::Color(255, 255, 255, 255),
+            .align = GameLibrary::TextAlign::Center,
+        });
     }
 
     m_menu->Reset();
@@ -71,20 +89,13 @@ void PauseMenuState::Render(GameScene& scene, GameLibrary::IGraphics& graphics)
     // 반투명 오버레이
     graphics.FillRect(0, 0, screenW, screenH, sf::Color(0, 0, 0, 150));
 
-    // 일시정지 박스
-    constexpr int32_t boxW = 300;
-    constexpr int32_t boxH = 200;
-    const int32_t boxX = (screenW - boxW) / 2;
-    const int32_t boxY = (screenH - boxH) / 2;
-
-    graphics.FillRect(boxX, boxY, boxW, boxH, sf::Color(40, 40, 40, 255));
-    graphics.DrawRect(boxX, boxY, boxW, boxH, sf::Color(255, 255, 255, 255));
-
-    // 타이틀
-    graphics.DrawLabel("PAUSED", boxX + boxW / 2, boxY + 20, 36, sf::Color(255, 255, 255, 255),
-                       GameLibrary::TextAlign::Center);
+    // 일시정지 박스 + 타이틀
+    m_titleBox.Render(graphics);
 
     // 메뉴 항목
+    constexpr int32_t boxW = 300;
+    const int32_t boxX = (screenW - boxW) / 2;
+    const int32_t boxY = (screenH - 200) / 2;
     m_menu->SetPosition(boxX + boxW / 2, boxY + 70);
     m_menu->Render(graphics);
 }

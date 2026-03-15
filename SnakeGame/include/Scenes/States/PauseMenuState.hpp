@@ -3,6 +3,7 @@
 
 #include "States/IState.hpp"
 #include "UI/MenuSelector.hpp"
+#include "UI/TextBox.hpp"
 
 #include <optional>
 
@@ -17,6 +18,7 @@ public:
 
 private:
     std::optional<GameLibrary::MenuSelector> m_menu{};
+    GameLibrary::TextBox m_titleBox{};
 };
 
 #endif // SNAKE_PAUSEMENUSTATE_HPP
