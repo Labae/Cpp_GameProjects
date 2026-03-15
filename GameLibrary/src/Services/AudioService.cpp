@@ -51,7 +51,7 @@ namespace GameLibrary
         }
 
         m_bgm.setLooping(true);
-        m_bgm.setVolume(m_bgmVolume);
+        m_bgm.setVolume(m_bgmVolume * 100.0f);
         m_bgm.play();
 
         return true;
