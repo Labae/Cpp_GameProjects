@@ -1,0 +1,57 @@
+jobs:
+  - name: Warrior
+    baseHp: 120
+    baseMp: 30
+    baseAttack: 15
+    baseDefense: 12
+    hpPerLevel: 15
+    mpPerLevel: 3
+    attackPerLevel: 3
+    defensePerLevel: 2
+    skills:
+      - name: Power Strike
+        description: A powerful blow (1.8x ATK)
+        mpCost: 5
+        power: 18
+      - name: Shield Block
+        description: Reduce next damage by 50%
+        mpCost: 3
+        power: 0
+
+  - name: Mage
+    baseHp: 70
+    baseMp: 80
+    baseAttack: 18
+    baseDefense: 6
+    hpPerLevel: 8
+    mpPerLevel: 10
+    attackPerLevel: 4
+    defensePerLevel: 1
+    skills:
+      - name: Fireball
+        description: Blazing fire (2.2x ATK)
+        mpCost: 10
+        power: 22
+      - name: Heal
+        description: Restore 30 HP
+        mpCost: 8
+        power: 30
+
+  - name: Rogue
+    baseHp: 90
+    baseMp: 50
+    baseAttack: 16
+    baseDefense: 8
+    hpPerLevel: 10
+    mpPerLevel: 5
+    attackPerLevel: 4
+    defensePerLevel: 1
+    skills:
+      - name: Backstab
+        description: Critical hit (2.5x ATK, 60% chance)
+        mpCost: 7
+        power: 25
+      - name: Poison
+        description: 3 turns DoT (5 dmg per turn)
+        mpCost: 6
+        power: 5

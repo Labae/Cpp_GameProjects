@@ -49,7 +49,7 @@ namespace TextRPG
             switch (m_menu->GetSelectedIndex())
             {
             case 0:
-                // TODO: 다른 씬
+                m_sceneManager->LoadScene("JobSelect");
                 break;
             case 1:
                 m_eventService->Publish(QuitEvent{});
