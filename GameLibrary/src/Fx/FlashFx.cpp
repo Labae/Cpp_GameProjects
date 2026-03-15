@@ -10,7 +10,7 @@ namespace GameLibrary
         , m_screenHeight(screenHeight)
         , m_color(color)
         , m_count(count)
-        , m_tween(0.0f, 1.0f, duration, EaseType::Linear,
+        , m_tween(0.0f, 1.0f, duration, EEase::Linear,
                   [this](const float progress)
                   {
                       const float cycleTime = 1.0f / static_cast<float>(m_count);

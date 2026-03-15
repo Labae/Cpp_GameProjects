@@ -30,7 +30,7 @@ namespace GameLibrary
         MenuSelector(const MenuSelector&) = delete;
         MenuSelector(MenuSelector&&) = default;
         MenuSelector& operator=(const MenuSelector&) = delete;
-        MenuSelector& operator=(MenuSelector&&) = default;
+        MenuSelector& operator=(MenuSelector&&) = delete;
 
         void SetItems(const std::vector<std::string>& items);
         void SetPosition(int32_t x, int32_t y) noexcept;

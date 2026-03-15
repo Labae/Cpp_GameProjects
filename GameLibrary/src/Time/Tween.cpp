@@ -4,7 +4,7 @@
 
 namespace GameLibrary
 {
-    Tween::Tween(const float from, const float to, const float duration, const EaseType easeType,
+    Tween::Tween(const float from, const float to, const float duration, const EEase easeType,
                  std::function<void(float)> onUpdate, std::function<void()> onComplete)
         : m_easeFunction(Easing::FromType(easeType))
         , m_onUpdate(std::move(onUpdate))

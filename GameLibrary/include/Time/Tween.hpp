@@ -10,7 +10,7 @@ namespace GameLibrary
     class Tween
     {
     public:
-        Tween(float from, float to, float duration, EaseType easeType,
+        Tween(float from, float to, float duration, EEase easeType,
               std::function<void(float)> onUpdate,
               std::function<void()> onComplete = nullptr);
 

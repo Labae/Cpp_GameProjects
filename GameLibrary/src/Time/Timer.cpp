@@ -6,7 +6,7 @@
 
 namespace GameLibrary
 {
-    Timer::Timer(const float interval, std::function<void()> callback, const TimerMode mode)
+    Timer::Timer(const float interval, std::function<void()> callback, const ETimerMode mode)
         : m_callback(std::move(callback))
         , m_interval(interval)
         , m_mode(mode)
@@ -26,7 +26,7 @@ namespace GameLibrary
         {
             m_callback();
 
-            if (m_mode == TimerMode::OneShot)
+            if (m_mode == ETimerMode::OneShot)
             {
                 m_finished = true;
                 return;

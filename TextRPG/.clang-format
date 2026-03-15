@@ -1,0 +1,47 @@
+BasedOnStyle: Microsoft
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+ColumnLimit: 120
+
+# 중괄호 스타일
+BreakBeforeBraces: Allman
+AllowShortFunctionsOnASingleLine: Inline
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+
+# 네임스페이스
+NamespaceIndentation: All
+
+# 포인터/참조 정렬
+PointerAlignment: Left
+ReferenceAlignment: Left
+
+# 정렬
+AlignAfterOpenBracket: Align
+AlignConsecutiveAssignments: false
+AlignConsecutiveDeclarations: false
+
+# 기타
+SpaceAfterCStyleCast: false
+SpaceBeforeParens: ControlStatements
+
+# === 추가 설정 ===
+
+# Include 정렬
+SortIncludes: true
+IncludeBlocks: Regroup
+
+# 빈 줄 관리
+KeepEmptyLinesAtTheStartOfBlocks: false
+MaxEmptyLinesToKeep: 1
+
+# 초기화 리스트 (생성자)
+BreakConstructorInitializers: BeforeComma
+PackConstructorInitializers: CurrentLine
+
+# 람다
+AllowShortLambdasOnASingleLine: Inline
+
+# 접근 지정자 (public, private)
+AccessModifierOffset: -4

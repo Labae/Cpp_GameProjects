@@ -5,7 +5,7 @@
 
 namespace GameLibrary
 {
-    enum class TimerMode
+    enum class ETimerMode
     {
         Repeat,
         OneShot
@@ -14,7 +14,7 @@ namespace GameLibrary
     class Timer
     {
     public:
-        Timer(float interval, std::function<void()> callback, TimerMode mode = TimerMode::Repeat);
+        Timer(float interval, std::function<void()> callback, ETimerMode mode = ETimerMode::Repeat);
         ~Timer() = default;
 
         Timer(const Timer&) = delete;
@@ -34,7 +34,7 @@ namespace GameLibrary
         std::function<void()> m_callback;
         float m_interval{};
         float m_elapsed{};
-        TimerMode m_mode{};
+        ETimerMode m_mode{};
         bool m_finished{};
     };
 } // namespace GameLibrary

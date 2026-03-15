@@ -7,7 +7,7 @@ namespace GameLibrary
 {
     using EaseFunction = float(*)(float);
 
-    enum class EaseType
+    enum class EEase
     {
         Linear,
         InQuad,
@@ -85,23 +85,23 @@ namespace GameLibrary
             return (u * u * ((s + 1.0f) * u + s) + 2.0f) * 0.5f;
         }
 
-        [[nodiscard]] inline EaseFunction FromType(const EaseType type) noexcept
+        [[nodiscard]] inline EaseFunction FromType(const EEase type) noexcept
         {
             switch (type)
             {
-            case EaseType::Linear:      return Linear;
-            case EaseType::InQuad:      return InQuad;
-            case EaseType::OutQuad:     return OutQuad;
-            case EaseType::InOutQuad:   return InOutQuad;
-            case EaseType::InCubic:     return InCubic;
-            case EaseType::OutCubic:    return OutCubic;
-            case EaseType::InOutCubic:  return InOutCubic;
-            case EaseType::InExpo:      return InExpo;
-            case EaseType::OutExpo:     return OutExpo;
-            case EaseType::InOutExpo:   return InOutExpo;
-            case EaseType::InBack:      return InBack;
-            case EaseType::OutBack:     return OutBack;
-            case EaseType::InOutBack:   return InOutBack;
+            case EEase::Linear:      return Linear;
+            case EEase::InQuad:      return InQuad;
+            case EEase::OutQuad:     return OutQuad;
+            case EEase::InOutQuad:   return InOutQuad;
+            case EEase::InCubic:     return InCubic;
+            case EEase::OutCubic:    return OutCubic;
+            case EEase::InOutCubic:  return InOutCubic;
+            case EEase::InExpo:      return InExpo;
+            case EEase::OutExpo:     return OutExpo;
+            case EEase::InOutExpo:   return InOutExpo;
+            case EEase::InBack:      return InBack;
+            case EEase::OutBack:     return OutBack;
+            case EEase::InOutBack:   return InOutBack;
             }
             return Linear;
         }

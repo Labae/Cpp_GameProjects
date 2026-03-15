@@ -5,7 +5,7 @@
 namespace GameLibrary
 {
     ShakeFx::ShakeFx(const float intensity, const float duration)
-        : m_tween(intensity, 0.0f, duration, EaseType::Linear,
+        : m_tween(intensity, 0.0f, duration, EEase::Linear,
                   [this](const float value)
                   {
                       m_offsetX = static_cast<int32_t>(Random::Range(-value, value));

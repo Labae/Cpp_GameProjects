@@ -1,0 +1,8 @@
+# Engine Configuration
+
+# 화면 설정
+screenWidth: 800
+screenHeight: 800
+
+# 폰트 설정
+fontPath: assets/fonts/NotoSans_Black.ttf
