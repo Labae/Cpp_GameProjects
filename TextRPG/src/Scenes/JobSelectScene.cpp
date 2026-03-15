@@ -107,16 +107,14 @@ namespace TextRPG
         m_lastIndex = m_menu->GetSelectedIndex();
         const auto& job = m_jobs[m_lastIndex];
 
-        std::string desc = std::format(
-            "[red]HP:[/] {}  [blue]MP:[/] {}  [orange]ATK:[/] {}  [cyan]DEF:[/] {}\n"
-            "\n"
-            "[gold]Skills:[/]",
-            job.baseHp, job.baseMp, job.baseAttack, job.baseDefense);
+        std::string desc = std::format("[red]HP:[/] {}  [blue]MP:[/] {}  [orange]ATK:[/] {}  [cyan]DEF:[/] {}\n"
+                                       "\n"
+                                       "[gold]Skills:[/]",
+                                       job.baseHp, job.baseMp, job.baseAttack, job.baseDefense);
 
         for (const auto& skill : job.skills)
         {
-            desc += std::format("\n  [gray]{} - {} (MP: {})[/]",
-                                skill.name, skill.description, skill.mpCost);
+            desc += std::format("\n  [gray]{} - {} (MP: {})[/]", skill.name, skill.description, skill.mpCost);
         }
 
         m_descBox.SetText(desc);
@@ -140,8 +138,7 @@ namespace TextRPG
 
         GetContainer().RegisterInstance<GameSessionData>(sessionData);
 
-        // TODO: DungeonScene으로 전환
-        // m_sceneManager->LoadScene("Dungeon");
+        m_sceneManager->LoadScene("Dungeon");
     }
 
 } // namespace TextRPG

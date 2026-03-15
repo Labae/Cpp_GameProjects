@@ -2,6 +2,7 @@
 
 #include "Events/GameEvents.hpp"
 #include "Scene/SceneManager.hpp"
+#include "Scenes/DungeonScene.hpp"
 #include "Scenes/JobSelectScene.hpp"
 #include "Scenes/TitleScene.hpp"
 #include "Services/ResourceService.hpp"
@@ -51,6 +52,10 @@ namespace TextRPG
         sceneManager->RegisterSceneFactory("JobSelect",
                                    [](const std::string& name, GameLibrary::ServiceContainer& container)
                                    { return std::make_unique<JobSelectScene>(name, container); });
+
+        sceneManager->RegisterSceneFactory("Dungeon",
+                           [](const std::string& name, GameLibrary::ServiceContainer& container)
+                           { return std::make_unique<DungeonScene>(name, container); });
     }
 
     void Application::SubscribeEvents()

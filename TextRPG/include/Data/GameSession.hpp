@@ -5,6 +5,7 @@
 #ifndef GAMESESSION_HPP
 #define GAMESESSION_HPP
 
+#include "DungeonData.hpp"
 #include "PlayerData.hpp"
 
 namespace TextRPG
@@ -12,6 +13,7 @@ namespace TextRPG
     struct GameSessionData
     {
         PlayerData player{};
+        DungeonData dungeon{};
     };
 } // namespace TextRPG
 
